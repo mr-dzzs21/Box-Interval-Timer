@@ -19,6 +19,7 @@ extension IntervalDevice {
     }
 }
 
+
 // Lokalisierung für IntervalLevel
 extension IntervalLevel {
     func localizedName(_ t: Translations) -> String {
@@ -30,13 +31,14 @@ extension IntervalLevel {
     }
 }
 
-// Die 5 unterstützten Sprachen
+// Die 6 unterstützten Sprachen
 enum AppLanguage: String, CaseIterable, Codable {
     case german  = "de"
     case english = "en"
     case arabic  = "ar"
     case spanish = "es"
     case french  = "fr"
+    case russian = "ru"
 
     var displayName: String {
         switch self {
@@ -45,6 +47,7 @@ enum AppLanguage: String, CaseIterable, Codable {
         case .arabic:  return "🇸🇦 العربية"
         case .spanish: return "🇪🇸 Español"
         case .french:  return "🇫🇷 Français"
+        case .russian: return "🇷🇺 Русский"
         }
     }
 
@@ -377,6 +380,42 @@ struct Translations {
             tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
             todoPlaceholder: "Nouvelle tâche...", todoOpen: "En cours", todoDone: "Terminé",
             todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche"
+        ),
+
+        .russian: Translations(
+            phaseWarmUp: "РАЗМИНКА", phaseRest: "ОТДЫХ", phaseCoolDown: "ЗАМИНКА",
+            phaseFinished: "ГОТОВО!", phaseWork: "РАБОТА", phaseRound: "РАУНД",
+            tabFightTimer: "Таймер", tabIntervals: "Интервалы",
+            tabHistory: "История", tabStats: "Статистика", tabSettings: "Настройки",
+            fightTimerTitle: "Таймер Боя", chooseTimer: "Выбрать Таймер",
+            standardPresets: "Стандартные Пресеты", customProfiles: "Свои Профили",
+            customizations: "Настройки", warmUp: "Разминка", rounds: "Раунды",
+            roundTime: "Время Раунда", rest: "Отдых", cancel: "Отмена", done: "Готово",
+            newProfile: "Новый Профиль", profileNameHint: "Название профиля (напр. Самбо)", save: "Сохранить",
+            intervalTitle: "Интервальная Тренировка", chooseTraining: "Выбери тренировку",
+            preset: "Пресет", customSetting: "Свои настройки", device: "Устройство", level: "Уровень",
+            yourTraining: "Твоя тренировка:", intervals: "Интервалы", coolDown: "Заминка",
+            totalApprox: "Итого: прим.", startTraining: "Начать тренировку", work: "Работа",
+            back: "Назад", saveWorkout: "Сохранить тренировку", saved: "Сохранено!",
+            sportBoxen: "Бокс", sportRingen: "Борьба",
+            deviceRunning: "🏃 Бег на улице", deviceTreadmill: "🏋️ Беговая дорожка",
+            deviceAirBike: "🚴 Велотренажёр", deviceBagWork: "🥊 Груша",
+            levelBeginner: "Начинающий", levelIntermediate: "Средний", levelAdvanced: "Продвинутый",
+            historyTitle: "История", noWorkouts: "Нет тренировок",
+            noWorkoutsDesc: "Здесь появятся завершённые тренировки",
+            deleteAll: "Удалить всё", confirmDeleteAll: "Удалить все тренировки?",
+            workoutDetails: "Детали тренировки", general: "Общее", sport: "Спорт",
+            mode: "Режим", date: "Дата", duration: "Длительность",
+            fightTimerDetails: "Детали таймера боя", intervalDetails: "Детали интервалов",
+            statsTitle: "Статистика", thisWeek: "На этой неделе", totalTime: "Общее время",
+            favoriteSport: "Любимый спорт", streak: "Серия", workoutsLabel: "Тренировки",
+            settingsTitle: "Настройки", audioHaptic: "Звук и вибрация",
+            soundEnabled: "Звук включён", vibrationEnabled: "Вибрация включена",
+            language: "Язык", about: "О приложении", version: "Версия",
+            developer: "Разработчик", presetsInfo: "Информация о пресетах", ok: "OK",
+            tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",
+            todoPlaceholder: "Новая задача...", todoOpen: "Открытые", todoDone: "Выполнено",
+            todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу"
         )
     ]
 }

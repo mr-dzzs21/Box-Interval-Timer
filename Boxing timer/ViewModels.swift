@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import CoreData
 import Combine
+import UIKit
+import ActivityKit
 
 
 // TEIL 2: ViewModels und Views
@@ -28,6 +30,9 @@ class FightTimerViewModel: ObservableObject {
     private var startTime: Date?
     private var totalElapsedSeconds: Int = 0
 
+    // Live Activity - gespeichert als Any? weil Activity<T> generisch ist
+    private var liveActivity: Activity<BoxingTimerAttributes>?
+
     var settings: UserSettings?
     // Sprache wird von der View gesetzt, damit phaseText übersetzt wird
     @Published var language: AppLanguage = .german
@@ -36,27 +41,33 @@ class FightTimerViewModel: ObservableObject {
         self.currentPreset = preset
         self.timeRemaining = preset.warmupSeconds
     }
-    
+
     func start() {
         if status == .idle {
             reset()
             startTime = Date()
         }
         status = .running
+        UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        startLiveActivity()
     }
-    
+
     func pause() {
         status = .paused
         timer?.invalidate()
         timer = nil
+        UIApplication.shared.isIdleTimerDisabled = false
+        updateLiveActivity(isRunning: false)
     }
-    
+
     func resume() {
         status = .running
+        UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        updateLiveActivity(isRunning: true)
     }
-    
+
     func reset() {
         timer?.invalidate()
         timer = nil
@@ -66,12 +77,63 @@ class FightTimerViewModel: ObservableObject {
         timeRemaining = currentPreset.warmupSeconds
         totalElapsedSeconds = 0
         startTime = nil
+        UIApplication.shared.isIdleTimerDisabled = false
+        endLiveActivity()
     }
-    
+
+    // MARK: - Live Activity
+    private var phaseColorName: String {
+        switch phase {
+        case .warmup, .cooldown: return "gray"
+        case .round:             return "green"
+        case .rest:              return "red"
+        case .finished:          return "blue"
+        }
+    }
+
+    private func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let attributes = BoxingTimerAttributes(sportName: currentPreset.name)
+        let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
+        let state = BoxingTimerAttributes.ContentState(
+            phase: phaseText,
+            phaseEndDate: endDate,
+            displayTime: timeString,
+            isRunning: true,
+            colorName: phaseColorName,
+            currentRound: currentRound,
+            totalRounds: currentPreset.rounds
+        )
+        let content = ActivityContent(state: state, staleDate: nil)
+        liveActivity = try? Activity.request(attributes: attributes, content: content)
+    }
+
+    private func updateLiveActivity(isRunning: Bool) {
+        guard let activity = liveActivity else { return }
+        let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
+        let state = BoxingTimerAttributes.ContentState(
+            phase: phaseText,
+            phaseEndDate: endDate,
+            displayTime: timeString,
+            isRunning: isRunning,
+            colorName: phaseColorName,
+            currentRound: currentRound,
+            totalRounds: currentPreset.rounds
+        )
+        let content = ActivityContent(state: state, staleDate: nil)
+        Task { await activity.update(content) }
+    }
+
+    private func endLiveActivity() {
+        guard let activity = liveActivity else { return }
+        Task { await activity.end(dismissalPolicy: .immediate) }
+        liveActivity = nil
+    }
+
     func skip() {
         advancePhase()
     }
-    
+
     func updatePreset(_ preset: FightPreset) {
         currentPreset = preset
         reset()
@@ -123,17 +185,20 @@ class FightTimerViewModel: ObservableObject {
             timeRemaining = currentPreset.roundSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            updateLiveActivity(isRunning: true)
         case .round:
             if currentRound < currentPreset.rounds {
                 phase = .rest
                 timeRemaining = currentPreset.restSeconds
                 soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
                 soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
+                updateLiveActivity(isRunning: true)
             } else {
                 phase = .finished
                 timeRemaining = 0
                 soundManager.playSound(type: .workoutEnd, soundEnabled: soundEnabled)
                 soundManager.playHaptic(type: .workoutEnd, vibrationEnabled: vibrationEnabled)
+                endLiveActivity()
                 pause()
             }
         case .rest:
@@ -142,11 +207,13 @@ class FightTimerViewModel: ObservableObject {
             timeRemaining = currentPreset.roundSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            updateLiveActivity(isRunning: true)
         case .cooldown, .finished:
+            endLiveActivity()
             pause()
         }
     }
-    
+
     var backgroundColor: Color {
         switch phase {
         case .warmup, .cooldown: return .gray.opacity(0.3)
@@ -198,6 +265,8 @@ class IntervalTimerViewModel: ObservableObject {
     private var startTime: Date?
     private var totalElapsedSeconds: Int = 0
 
+    private var liveActivity: Activity<BoxingTimerAttributes>?
+
     var settings: UserSettings?
     @Published var language: AppLanguage = .german
 
@@ -205,27 +274,33 @@ class IntervalTimerViewModel: ObservableObject {
         self.workout = workout
         self.timeRemaining = workout.warmupSeconds
     }
-    
+
     func start() {
         if status == .idle {
             reset()
             startTime = Date()
         }
         status = .running
+        UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        startLiveActivity()
     }
-    
+
     func pause() {
         status = .paused
         timer?.invalidate()
         timer = nil
+        UIApplication.shared.isIdleTimerDisabled = false
+        updateLiveActivity(isRunning: false)
     }
-    
+
     func resume() {
         status = .running
+        UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        updateLiveActivity(isRunning: true)
     }
-    
+
     func reset() {
         timer?.invalidate()
         timer = nil
@@ -235,17 +310,68 @@ class IntervalTimerViewModel: ObservableObject {
         timeRemaining = workout.warmupSeconds
         totalElapsedSeconds = 0
         startTime = nil
+        UIApplication.shared.isIdleTimerDisabled = false
+        endLiveActivity()
     }
-    
+
     func skip() {
         advancePhase()
     }
-    
+
     func updateWorkout(_ w: IntervalWorkout) {
         workout = w
         reset()
     }
-    
+
+    // MARK: - Live Activity
+    private var phaseColorName: String {
+        switch phase {
+        case .warmup, .cooldown: return "gray"
+        case .round:             return "green"
+        case .rest:              return "red"
+        case .finished:          return "blue"
+        }
+    }
+
+    private func startLiveActivity() {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        let attributes = BoxingTimerAttributes(sportName: workout.displayName)
+        let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
+        let state = BoxingTimerAttributes.ContentState(
+            phase: phaseText,
+            phaseEndDate: endDate,
+            displayTime: timeString,
+            isRunning: true,
+            colorName: phaseColorName,
+            currentRound: currentInterval,
+            totalRounds: workout.intervals
+        )
+        let content = ActivityContent(state: state, staleDate: nil)
+        liveActivity = try? Activity.request(attributes: attributes, content: content)
+    }
+
+    private func updateLiveActivity(isRunning: Bool) {
+        guard let activity = liveActivity else { return }
+        let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
+        let state = BoxingTimerAttributes.ContentState(
+            phase: phaseText,
+            phaseEndDate: endDate,
+            displayTime: timeString,
+            isRunning: isRunning,
+            colorName: phaseColorName,
+            currentRound: currentInterval,
+            totalRounds: workout.intervals
+        )
+        let content = ActivityContent(state: state, staleDate: nil)
+        Task { await activity.update(content) }
+    }
+
+    private func endLiveActivity() {
+        guard let activity = liveActivity else { return }
+        Task { await activity.end(dismissalPolicy: .immediate) }
+        liveActivity = nil
+    }
+
     func saveWorkoutToHistory(context: NSManagedObjectContext) {
         guard let startTime = startTime else { return }
         let w = WorkoutHistoryEntity(context: context)
@@ -292,17 +418,20 @@ class IntervalTimerViewModel: ObservableObject {
             timeRemaining = workout.workSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            updateLiveActivity(isRunning: true)
         case .round:
             if currentInterval < workout.intervals {
                 phase = .rest
                 timeRemaining = workout.restSeconds
                 soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
                 soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
+                updateLiveActivity(isRunning: true)
             } else {
                 phase = .cooldown
                 timeRemaining = workout.cooldownSeconds
                 soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
                 soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
+                updateLiveActivity(isRunning: true)
             }
         case .rest:
             currentInterval += 1
@@ -310,17 +439,20 @@ class IntervalTimerViewModel: ObservableObject {
             timeRemaining = workout.workSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            updateLiveActivity(isRunning: true)
         case .cooldown:
             phase = .finished
             timeRemaining = 0
             soundManager.playSound(type: .workoutEnd, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .workoutEnd, vibrationEnabled: vibrationEnabled)
+            endLiveActivity()
             pause()
         case .finished:
+            endLiveActivity()
             pause()
         }
     }
-    
+
     var backgroundColor: Color {
         switch phase {
         case .warmup, .cooldown: return .gray.opacity(0.3)

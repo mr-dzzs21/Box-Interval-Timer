@@ -6,14 +6,65 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8DBDBFE02F4B1774001996EE /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DBDBFDF2F4B1774001996EE /* WidgetKit.framework */; };
+		8DBDBFE22F4B1774001996EE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DBDBFE12F4B1774001996EE /* SwiftUI.framework */; };
+		8DBDBFF12F4B1775001996EE /* BoxingTimerWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8DBDBFDD2F4B1774001996EE /* BoxingTimerWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8DBDBFEF2F4B1775001996EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8DAD360B2F2587410016E88F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DBDBFDC2F4B1774001996EE;
+			remoteInfo = BoxingTimerWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8DBDBFF62F4B1775001996EE /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				8DBDBFF12F4B1775001996EE /* BoxingTimerWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		8DAD36132F2587410016E88F /* Boxing timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Boxing timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DBDBFDD2F4B1774001996EE /* BoxingTimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BoxingTimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DBDBFDF2F4B1774001996EE /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		8DBDBFE12F4B1774001996EE /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8DBDBFF22F4B1775001996EE /* Exceptions for "BoxingTimerWidget" folder in "BoxingTimerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8DBDBFDC2F4B1774001996EE /* BoxingTimerWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8DAD36152F2587410016E88F /* Boxing timer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Boxing timer";
+			sourceTree = "<group>";
+		};
+		8DBDBFE32F4B1774001996EE /* BoxingTimerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8DBDBFF22F4B1775001996EE /* Exceptions for "BoxingTimerWidget" folder in "BoxingTimerWidgetExtension" target */,
+			);
+			path = BoxingTimerWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -26,6 +77,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8DBDBFDA2F4B1774001996EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DBDBFE22F4B1774001996EE /* SwiftUI.framework in Frameworks */,
+				8DBDBFE02F4B1774001996EE /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -33,6 +93,8 @@
 			isa = PBXGroup;
 			children = (
 				8DAD36152F2587410016E88F /* Boxing timer */,
+				8DBDBFE32F4B1774001996EE /* BoxingTimerWidget */,
+				8DBDBFDE2F4B1774001996EE /* Frameworks */,
 				8DAD36142F2587410016E88F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +103,18 @@
 			isa = PBXGroup;
 			children = (
 				8DAD36132F2587410016E88F /* Boxing timer.app */,
+				8DBDBFDD2F4B1774001996EE /* BoxingTimerWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8DBDBFDE2F4B1774001996EE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8DBDBFDF2F4B1774001996EE /* WidgetKit.framework */,
+				8DBDBFE12F4B1774001996EE /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,10 +127,12 @@
 				8DAD360F2F2587410016E88F /* Sources */,
 				8DAD36102F2587410016E88F /* Frameworks */,
 				8DAD36112F2587410016E88F /* Resources */,
+				8DBDBFF62F4B1775001996EE /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8DBDBFF02F4B1775001996EE /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8DAD36152F2587410016E88F /* Boxing timer */,
@@ -69,6 +143,28 @@
 			productName = "Boxing timer";
 			productReference = 8DAD36132F2587410016E88F /* Boxing timer.app */;
 			productType = "com.apple.product-type.application";
+		};
+		8DBDBFDC2F4B1774001996EE /* BoxingTimerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8DBDBFF32F4B1775001996EE /* Build configuration list for PBXNativeTarget "BoxingTimerWidgetExtension" */;
+			buildPhases = (
+				8DBDBFD92F4B1774001996EE /* Sources */,
+				8DBDBFDA2F4B1774001996EE /* Frameworks */,
+				8DBDBFDB2F4B1774001996EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8DBDBFE32F4B1774001996EE /* BoxingTimerWidget */,
+			);
+			name = BoxingTimerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = BoxingTimerWidgetExtension;
+			productReference = 8DBDBFDD2F4B1774001996EE /* BoxingTimerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -81,6 +177,9 @@
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					8DAD36122F2587410016E88F = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					8DBDBFDC2F4B1774001996EE = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
@@ -100,12 +199,20 @@
 			projectRoot = "";
 			targets = (
 				8DAD36122F2587410016E88F /* Boxing timer */,
+				8DBDBFDC2F4B1774001996EE /* BoxingTimerWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		8DAD36112F2587410016E88F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8DBDBFDB2F4B1774001996EE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +229,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8DBDBFD92F4B1774001996EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8DBDBFF02F4B1775001996EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DBDBFDC2F4B1774001996EE /* BoxingTimerWidgetExtension */;
+			targetProxy = 8DBDBFEF2F4B1775001996EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		8DAD361C2F2587410016E88F /* Debug */ = {
@@ -255,6 +377,7 @@
 				DEVELOPMENT_TEAM = QX7XLX2B86;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -289,6 +412,7 @@
 				DEVELOPMENT_TEAM = QX7XLX2B86;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -305,6 +429,68 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		8DBDBFF42F4B1775001996EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QX7XLX2B86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BoxingTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BoxingTimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Diyar.Boxing-timer.BoxingTimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8DBDBFF52F4B1775001996EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QX7XLX2B86;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BoxingTimerWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = BoxingTimerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Diyar.Boxing-timer.BoxingTimerWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -329,6 +515,15 @@
 			buildConfigurations = (
 				8DAD361F2F2587410016E88F /* Debug */,
 				8DAD36202F2587410016E88F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8DBDBFF32F4B1775001996EE /* Build configuration list for PBXNativeTarget "BoxingTimerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8DBDBFF42F4B1775001996EE /* Debug */,
+				8DBDBFF52F4B1775001996EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
