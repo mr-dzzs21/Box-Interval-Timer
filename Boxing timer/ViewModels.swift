@@ -172,8 +172,16 @@ class FightTimerViewModel: ObservableObject {
             return
         }
         timeRemaining -= 1
+
+        // 10-Sekunden-Warnung vor Rundenende
+        if phase == .round && timeRemaining == 10 {
+            let soundEnabled = settings?.soundEnabled ?? true
+            let vibrationEnabled = settings?.vibrationEnabled ?? true
+            soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+        }
     }
-    
+
     private func advancePhase() {
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true
@@ -405,8 +413,16 @@ class IntervalTimerViewModel: ObservableObject {
             return
         }
         timeRemaining -= 1
+
+        // 10-Sekunden-Warnung vor Intervallende
+        if phase == .round && timeRemaining == 10 {
+            let soundEnabled = settings?.soundEnabled ?? true
+            let vibrationEnabled = settings?.vibrationEnabled ?? true
+            soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+        }
     }
-    
+
     private func advancePhase() {
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true

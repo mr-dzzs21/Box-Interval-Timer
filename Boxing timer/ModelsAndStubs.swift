@@ -138,32 +138,34 @@ class SoundManager {
         case roundStart
         case roundEnd
         case workoutEnd
+        case roundWarning  // 10 Sekunden vor Rundenende
     }
 
-    // AVAudioPlayer spielt die mp3-Datei ab
-    // "private" = nur dieser SoundManager darf darauf zugreifen
+    // Haupt-Player für Glocke (roundStart, roundEnd, workoutEnd)
     private var player: AVAudioPlayer?
+    // Zweiter Player für Warning-Sound – läuft unabhängig vom Haupt-Player
+    private var warningPlayer: AVAudioPlayer?
 
     func playHaptic(type: SoundType, vibrationEnabled: Bool) {
         guard vibrationEnabled else { return }
 
         switch type {
         case .roundStart:
-            // UIImpactFeedbackGenerator = kurzes "Bumps"-Gefühl
-            // .heavy = starkes Feedback, gut spürbar beim Training
             let generator = UIImpactFeedbackGenerator(style: .heavy)
             generator.impactOccurred()
 
         case .roundEnd:
-            // UINotificationFeedbackGenerator = vordefinierte Muster
-            // .warning = zwei kurze Pulse → signalisiert "Achtung, Phase vorbei"
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.warning)
 
         case .workoutEnd:
-            // .success = drei aufsteigende Pulse → signalisiert "Geschafft!"
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
+
+        case .roundWarning:
+            // Leichtes Tippen als kurze Vorwarnung
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
         }
     }
 
@@ -178,23 +180,38 @@ class SoundManager {
             return
         }
 
+        // Warning-Sound läuft auf separatem Player
+        if type == .roundWarning {
+            guard let warnUrl = Bundle.main.url(forResource: "knock-sound", withExtension: "mp3") else {
+                print("knock-sound.mp3 nicht gefunden")
+                return
+            }
+            do {
+                warningPlayer = try AVAudioPlayer(contentsOf: warnUrl)
+                warningPlayer?.volume = 1.0
+                warningPlayer?.play()
+            } catch {
+                print("Warning-Sound Fehler: \(error)")
+            }
+            return
+        }
+
         do {
-            // AVAudioPlayer mit der mp3-Datei initialisieren
             player = try AVAudioPlayer(contentsOf: url)
 
-            // Lautstärke je nach Sound-Typ anpassen
             switch type {
             case .roundStart:
-                player?.volume = 1.0   // volle Lautstärke beim Start
+                player?.volume = 1.0
             case .roundEnd:
                 player?.volume = 0.8
             case .workoutEnd:
                 player?.volume = 1.0
+            case .roundWarning:
+                break  // wird oben bereits behandelt
             }
 
             player?.play()
         } catch {
-            // "catch" = wenn etwas schiefgeht, landet es hier
             print("Sound konnte nicht abgespielt werden: \(error)")
         }
     }
