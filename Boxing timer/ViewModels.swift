@@ -173,8 +173,8 @@ class FightTimerViewModel: ObservableObject {
         }
         timeRemaining -= 1
 
-        // 10-Sekunden-Warnung vor Rundenende
-        if phase == .round && timeRemaining == 10 {
+        // 10-Sekunden-Warnung vor Rundenende (nur wenn aktiviert)
+        if phase == .round && timeRemaining == 10 && (settings?.warningEnabled ?? true) {
             let soundEnabled = settings?.soundEnabled ?? true
             let vibrationEnabled = settings?.vibrationEnabled ?? true
             soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
@@ -414,8 +414,8 @@ class IntervalTimerViewModel: ObservableObject {
         }
         timeRemaining -= 1
 
-        // 10-Sekunden-Warnung vor Intervallende
-        if phase == .round && timeRemaining == 10 {
+        // 10-Sekunden-Warnung vor Intervallende (nur wenn aktiviert)
+        if phase == .round && timeRemaining == 10 && (settings?.warningEnabled ?? true) {
             let soundEnabled = settings?.soundEnabled ?? true
             let vibrationEnabled = settings?.vibrationEnabled ?? true
             soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)

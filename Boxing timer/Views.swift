@@ -448,6 +448,7 @@ struct SettingsView: View {
                 Section(lang.t.audioHaptic) {
                     Toggle(lang.t.soundEnabled, isOn: $settings.soundEnabled)
                     Toggle(lang.t.vibrationEnabled, isOn: $settings.vibrationEnabled)
+                    Toggle(lang.t.warningEnabled, isOn: $settings.warningEnabled)
                 }
 
                 // Sprachauswahl

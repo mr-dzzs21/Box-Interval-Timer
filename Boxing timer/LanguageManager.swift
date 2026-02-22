@@ -170,6 +170,7 @@ struct Translations {
     let audioHaptic: String
     let soundEnabled: String
     let vibrationEnabled: String
+    let warningEnabled: String
     let language: String
     let about: String
     let version: String
@@ -231,6 +232,7 @@ struct Translations {
             favoriteSport: "Lieblings-Sport", streak: "Streak", workoutsLabel: "Workouts",
             settingsTitle: "Einstellungen", audioHaptic: "Audio & Haptik",
             soundEnabled: "Sound aktiviert", vibrationEnabled: "Vibration aktiviert",
+            warningEnabled: "10-Sek. Warnsound",
             language: "Sprache", about: "Über die App", version: "Version",
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
             tabTodos: "Todos", todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
@@ -267,6 +269,7 @@ struct Translations {
             favoriteSport: "Favorite Sport", streak: "Streak", workoutsLabel: "Workouts",
             settingsTitle: "Settings", audioHaptic: "Audio & Haptics",
             soundEnabled: "Sound enabled", vibrationEnabled: "Vibration enabled",
+            warningEnabled: "10-sec. warning sound",
             language: "Language", about: "About", version: "Version",
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
             tabTodos: "Todos", todosTitle: "My Todos", todoAdd: "Add",
@@ -303,6 +306,7 @@ struct Translations {
             favoriteSport: "الرياضة المفضلة", streak: "تسلسل", workoutsLabel: "تمارين",
             settingsTitle: "إعدادات", audioHaptic: "الصوت والاهتزاز",
             soundEnabled: "تفعيل الصوت", vibrationEnabled: "تفعيل الاهتزاز",
+            warningEnabled: "صوت تحذير 10 ثوانٍ",
             language: "اللغة", about: "عن التطبيق", version: "الإصدار",
             developer: "المطور", presetsInfo: "معلومات الإعدادات", ok: "موافق",
             tabTodos: "مهام", todosTitle: "مهامي", todoAdd: "إضافة",
@@ -339,6 +343,7 @@ struct Translations {
             favoriteSport: "Deporte Favorito", streak: "Racha", workoutsLabel: "Entrenamientos",
             settingsTitle: "Ajustes", audioHaptic: "Audio y Háptico",
             soundEnabled: "Sonido activado", vibrationEnabled: "Vibración activada",
+            warningEnabled: "Sonido de aviso 10 seg.",
             language: "Idioma", about: "Acerca de", version: "Versión",
             developer: "Desarrollador", presetsInfo: "Info de Presets", ok: "OK",
             tabTodos: "Tareas", todosTitle: "Mis Tareas", todoAdd: "Añadir",
@@ -375,6 +380,7 @@ struct Translations {
             favoriteSport: "Sport Favori", streak: "Série", workoutsLabel: "Entraînements",
             settingsTitle: "Réglages", audioHaptic: "Audio & Haptique",
             soundEnabled: "Son activé", vibrationEnabled: "Vibration activée",
+            warningEnabled: "Son d'avertissement 10 sec.",
             language: "Langue", about: "À propos", version: "Version",
             developer: "Développeur", presetsInfo: "Info Préréglages", ok: "OK",
             tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
@@ -411,6 +417,7 @@ struct Translations {
             favoriteSport: "Любимый спорт", streak: "Серия", workoutsLabel: "Тренировки",
             settingsTitle: "Настройки", audioHaptic: "Звук и вибрация",
             soundEnabled: "Звук включён", vibrationEnabled: "Вибрация включена",
+            warningEnabled: "Предупредительный звук 10 сек.",
             language: "Язык", about: "О приложении", version: "Версия",
             developer: "Разработчик", presetsInfo: "Информация о пресетах", ok: "OK",
             tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",

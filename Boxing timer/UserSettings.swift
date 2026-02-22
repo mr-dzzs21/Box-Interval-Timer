@@ -21,22 +21,34 @@ class UserSettings: ObservableObject {
             UserDefaults.standard.set(vibrationEnabled, forKey: "vibrationEnabled")
         }
     }
-    
+
+    @Published var warningEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(warningEnabled, forKey: "warningEnabled")
+        }
+    }
+
     init() {
         self.soundEnabled = UserDefaults.standard.bool(forKey: "soundEnabled")
         self.vibrationEnabled = UserDefaults.standard.bool(forKey: "vibrationEnabled")
-        
-        // Default to true if not set
+        self.warningEnabled = UserDefaults.standard.bool(forKey: "warningEnabled")
+
         if !UserDefaults.standard.bool(forKey: "soundEnabledSet") {
             self.soundEnabled = true
             UserDefaults.standard.set(true, forKey: "soundEnabled")
             UserDefaults.standard.set(true, forKey: "soundEnabledSet")
         }
-        
+
         if !UserDefaults.standard.bool(forKey: "vibrationEnabledSet") {
             self.vibrationEnabled = true
             UserDefaults.standard.set(true, forKey: "vibrationEnabled")
             UserDefaults.standard.set(true, forKey: "vibrationEnabledSet")
+        }
+
+        if !UserDefaults.standard.bool(forKey: "warningEnabledSet") {
+            self.warningEnabled = true
+            UserDefaults.standard.set(true, forKey: "warningEnabled")
+            UserDefaults.standard.set(true, forKey: "warningEnabledSet")
         }
     }
 }
