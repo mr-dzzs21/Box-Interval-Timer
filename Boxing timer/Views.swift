@@ -438,6 +438,96 @@ struct StatCard: View {
     }
 }
 
+// MARK: - Privacy Policy View
+struct PrivacyPolicyView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+
+                Text("🥊 Boxing Timer")
+                    .font(.title.bold())
+                Text("Datenschutzerklärung · Februar 2026")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                // Kurzfassung
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "checkmark.shield.fill")
+                        .foregroundColor(.green)
+                        .font(.title2)
+                    Text("Diese App speichert keine persönlichen Daten, sendet keine Daten an Server und verwendet keine Tracker oder Werbung.")
+                        .font(.subheadline)
+                }
+                .padding()
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(12)
+
+                Group {
+                    PolicySection(
+                        icon: "internaldrive",
+                        title: "Welche Daten werden gespeichert?",
+                        text: "Nur lokal auf deinem Gerät:\n• Trainingshistorie (Datum, Dauer, Sportart)\n• App-Einstellungen (Sprache, Sound, Vibration)\n\nDiese Daten verlassen dein Gerät niemals."
+                    )
+                    PolicySection(
+                        icon: "wifi.slash",
+                        title: "Werden Daten übertragen?",
+                        text: "Nein. Die App sendet keine Daten an Server, verwendet keine Analyse-Tools und benötigt keine Internetverbindung."
+                    )
+                    PolicySection(
+                        icon: "creditcard",
+                        title: "In-App Käufe",
+                        text: "Optionale Donations werden vollständig über Apple In-App Purchase abgewickelt. Wir haben keinen Zugriff auf Zahlungsdaten."
+                    )
+                    PolicySection(
+                        icon: "bell",
+                        title: "Berechtigungen",
+                        text: "Nur Live Activity (Timer auf dem Sperrbildschirm, optional). Keine anderen Berechtigungen."
+                    )
+                    PolicySection(
+                        icon: "envelope",
+                        title: "Kontakt",
+                        text: "diyar.kaymaz@icloud.com"
+                    )
+                }
+
+                Text("© 2026 Diyar Kaymaz")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 10)
+            }
+            .padding()
+        }
+        .navigationTitle("Datenschutzerklärung")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PolicySection: View {
+    let icon: String
+    let title: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .foregroundColor(.orange)
+                    .frame(width: 20)
+                Text(title)
+                    .font(.headline)
+            }
+            Text(text)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.gray.opacity(0.08))
+        .cornerRadius(12)
+    }
+}
+
 // MARK: - Donation View
 struct DonationView: View {
     @StateObject private var manager = DonationManager.shared
@@ -609,6 +699,9 @@ struct SettingsView: View {
                         Text(lang.t.developer)
                         Spacer()
                         Text("Diyar Kaymaz").foregroundColor(.secondary)
+                    }
+                    NavigationLink(destination: PrivacyPolicyView()) {
+                        Text("Datenschutzerklärung")
                     }
                 }
 
