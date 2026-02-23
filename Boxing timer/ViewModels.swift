@@ -614,23 +614,12 @@ struct FightTimerView: View {
                 vm.backgroundColor.ignoresSafeArea()
                 
                 VStack(spacing: 30) {
-                    Button { showPicker = true } label: {
-                        HStack {
-                            Text(vm.currentPreset.name).font(.headline)
-                            Image(systemName: "chevron.down")
-                        }
-                        .padding()
-                        .background(Color.black.opacity(0.2))
-                        .cornerRadius(10)
-                    }
-                    .foregroundColor(.primary)
-                    
                     Spacer()
-                    
+
                     Text(vm.phaseText)
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.primary)
-                    
+
                     ZStack {
                         Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
                         Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
@@ -638,9 +627,9 @@ struct FightTimerView: View {
                             .animation(.linear(duration: 0.5), value: vm.progress)
                         Text(vm.timeString).font(.system(size: 110, weight: .bold, design: .rounded)).foregroundColor(.primary)
                     }
-                    
+
                     Spacer()
-                    
+
                     HStack(spacing: 30) {
                         Button { vm.reset() } label: {
                             Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
@@ -674,7 +663,6 @@ struct FightTimerView: View {
                 }
                 .padding()
             }
-            .navigationTitle(lang.t.fightTimerTitle)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { vm.settings = settings; vm.language = lang.current }
             .onChange(of: lang.current) { _, new in vm.language = new }
@@ -683,6 +671,19 @@ struct FightTimerView: View {
                     Button { showSettings = true } label: {
                         Image(systemName: "gearshape.fill")
                     }
+                }
+                ToolbarItem(placement: .principal) {
+                    Button { showPicker = true } label: {
+                        HStack(spacing: 4) {
+                            Text(vm.currentPreset.name).font(.headline)
+                            Image(systemName: "chevron.down").font(.caption)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.black.opacity(0.2))
+                        .cornerRadius(10)
+                    }
+                    .foregroundColor(.primary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showEditor = true } label: {
