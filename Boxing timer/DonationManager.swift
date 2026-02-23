@@ -9,6 +9,7 @@
 import StoreKit
 import Foundation
 import SwiftUI
+import Combine
 
 // MARK: - Donation Manager
 @MainActor
