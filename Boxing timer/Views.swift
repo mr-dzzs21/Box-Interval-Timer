@@ -766,6 +766,14 @@ struct SettingsView: View {
                         Spacer()
                         Text("Diyar Kaymaz").foregroundColor(.secondary)
                     }
+                    Link(destination: URL(string: "mailto:box.timer.app@gmail.com?subject=Feedback%20-%20Boxing%20Interval%20Timer")!) {
+                        HStack {
+                            Image(systemName: "envelope")
+                                .foregroundColor(.blue)
+                            Text("Feedback senden")
+                                .foregroundColor(.primary)
+                        }
+                    }
                     NavigationLink(destination: PrivacyPolicyView()) {
                         Text("Datenschutzerklärung")
                     }
