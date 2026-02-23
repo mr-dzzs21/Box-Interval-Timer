@@ -671,8 +671,6 @@ struct FightTimerView: View {
                     .background(Color.blue).cornerRadius(12).padding(.horizontal)
                     .opacity(vm.phase == .finished ? 1 : 0)
                     .disabled(vm.phase != .finished)
-                    
-                    Spacer()
                 }
                 .padding()
             }
