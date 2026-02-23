@@ -37,9 +37,10 @@ class FightTimerViewModel: ObservableObject {
     // Sprache wird von der View gesetzt, damit phaseText übersetzt wird
     @Published var language: AppLanguage = .german
 
-    init(preset: FightPreset = FightPreset.defaultPresets[0]) {
-        self.currentPreset = preset
-        self.timeRemaining = preset.warmupSeconds
+    init(preset: FightPreset? = nil) {
+        let resolved = preset ?? FightPreset.defaultPresets[0]
+        self.currentPreset = resolved
+        self.timeRemaining = resolved.warmupSeconds
     }
 
     func start() {
@@ -126,7 +127,7 @@ class FightTimerViewModel: ObservableObject {
 
     private func endLiveActivity() {
         guard let activity = liveActivity else { return }
-        Task { await activity.end(dismissalPolicy: .immediate) }
+        Task { await activity.end(nil, dismissalPolicy: .immediate) }
         liveActivity = nil
     }
 
@@ -156,7 +157,7 @@ class FightTimerViewModel: ObservableObject {
     
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.tick()
             }
         }
@@ -376,7 +377,7 @@ class IntervalTimerViewModel: ObservableObject {
 
     private func endLiveActivity() {
         guard let activity = liveActivity else { return }
-        Task { await activity.end(dismissalPolicy: .immediate) }
+        Task { await activity.end(nil, dismissalPolicy: .immediate) }
         liveActivity = nil
     }
 
@@ -397,7 +398,7 @@ class IntervalTimerViewModel: ObservableObject {
     
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.tick()
             }
         }
