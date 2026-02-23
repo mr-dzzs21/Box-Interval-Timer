@@ -66,8 +66,15 @@ class LanguageManager: ObservableObject {
     }
 
     init() {
-        let saved = UserDefaults.standard.string(forKey: "appLanguage") ?? "de"
-        self.current = AppLanguage(rawValue: saved) ?? .german
+        if let saved = UserDefaults.standard.string(forKey: "appLanguage"),
+           let language = AppLanguage(rawValue: saved) {
+            // Gespeicherte Sprache verwenden
+            self.current = language
+        } else {
+            // Erster Start - Gerätesprache automatisch erkennen
+            let deviceCode = Locale.current.language.languageCode?.identifier ?? "de"
+            self.current = AppLanguage(rawValue: deviceCode) ?? .german
+        }
     }
 
     // Kurzform: lang.t.xxx
