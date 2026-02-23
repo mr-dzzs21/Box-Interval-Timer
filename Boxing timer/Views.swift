@@ -17,6 +17,7 @@ struct IntervalTimerView: View {
     @Environment(\.managedObjectContext) private var context
     @EnvironmentObject var settings: UserSettings
     @EnvironmentObject var lang: LanguageManager
+    @EnvironmentObject var promptManager: AppPromptManager
 
     @State private var useCustom = false
     @State private var customWork = 30
@@ -201,6 +202,7 @@ struct IntervalTimerView: View {
                 Button(lang.t.saveWorkout) {
                     vm.saveWorkoutToHistory(context: context)
                     showSaved = true
+                    promptManager.recordWorkoutCompleted()
                 }
                 .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
                 .background(Color.blue).cornerRadius(12).padding(.horizontal)
@@ -435,6 +437,61 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity).padding()
         .background(color.opacity(0.1)).cornerRadius(12)
+    }
+}
+
+// MARK: - Donation Prompt View (erscheint nach 30 Tagen)
+struct DonationPromptView: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var lang: LanguageManager
+    @State private var showDonationSheet = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Text("🥊")
+                .font(.system(size: 70))
+
+            Text("Du trainierst jetzt seit einem Monat!")
+                .font(.title2.bold())
+                .multilineTextAlignment(.center)
+
+            Text("Falls Boxing Interval Timer dir bei deinem Training hilft, freue ich mich sehr über eine kleine Unterstützung. Das hilft mir die App weiterzuentwickeln 🙏")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button {
+                showDonationSheet = true
+            } label: {
+                HStack {
+                    Image(systemName: "heart.fill")
+                    Text(lang.t.donationSupport)
+                }
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.blue)
+                .cornerRadius(14)
+            }
+            .padding(.horizontal)
+
+            Button("Vielleicht später") {
+                dismiss()
+            }
+            .foregroundColor(.secondary)
+            .font(.subheadline)
+
+            Spacer()
+        }
+        .padding()
+        .sheet(isPresented: $showDonationSheet) {
+            DonationView()
+                .onDisappear { dismiss() }
+        }
     }
 }
 

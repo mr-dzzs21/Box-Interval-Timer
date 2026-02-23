@@ -602,6 +602,7 @@ struct FightTimerView: View {
     @Environment(\.managedObjectContext) private var context
     @EnvironmentObject var settings: UserSettings
     @EnvironmentObject var lang: LanguageManager
+    @EnvironmentObject var promptManager: AppPromptManager
     @State private var showPicker = false
     @State private var showEditor = false
     @State private var showSaved = false
@@ -665,6 +666,7 @@ struct FightTimerView: View {
                         Button(lang.t.saveWorkout) {
                             vm.saveWorkoutToHistory(context: context)
                             showSaved = true
+                            promptManager.recordWorkoutCompleted()
                         }
                         .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
                         .background(Color.blue).cornerRadius(12).padding(.horizontal)
