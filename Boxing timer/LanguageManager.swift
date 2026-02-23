@@ -177,6 +177,22 @@ struct Translations {
     let developer: String
     let presetsInfo: String
     let ok: String
+    let feedbackButton: String
+    let rateApp: String
+    let privacyPolicy: String
+
+    // Onboarding
+    let onboardingNext: String
+    let onboardingStart: String
+    let onboardingSkip: String
+    let onboarding1Title: String
+    let onboarding1Text: String
+    let onboarding2Title: String
+    let onboarding2Text: String
+    let onboarding3Title: String
+    let onboarding3Text: String
+    let onboarding4Title: String
+    let onboarding4Text: String
 
     // Todos
     let tabTodos: String
@@ -241,6 +257,14 @@ struct Translations {
             warningEnabled: "10-Sek. Warnsound",
             language: "Sprache", about: "Über die App", version: "Version",
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
+            feedbackButton: "Feedback senden", rateApp: "App bewerten",
+            privacyPolicy: "Datenschutzerklärung",
+            onboardingNext: "Weiter", onboardingStart: "Los geht's!",
+            onboardingSkip: "Überspringen",
+            onboarding1Title: "Willkommen!", onboarding1Text: "Dein professioneller Kampfsport-Timer für Training und Wettkampf.",
+            onboarding2Title: "Fight Timer", onboarding2Text: "Presets für Boxen, MMA, K1, Muay Thai und mehr. Einfach auswählen und loslegen.",
+            onboarding3Title: "Interval Training", onboarding3Text: "Intensives HIIT Training für Laufen, AirBike, Sandsack und mehr. Auch komplett anpassbar.",
+            onboarding4Title: "Fortschritt tracken", onboarding4Text: "Alle Workouts werden gespeichert. Verfolge deinen Fortschritt in History und Statistiken.",
             tabTodos: "Todos", todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
             todoPlaceholder: "Neues Todo...", todoOpen: "Offen", todoDone: "Erledigt",
             todoEmpty: "Keine Todos", todoEmptyDesc: "Füge dein erstes Todo hinzu",
@@ -281,6 +305,14 @@ struct Translations {
             warningEnabled: "10-sec. warning sound",
             language: "Language", about: "About", version: "Version",
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
+            feedbackButton: "Send Feedback", rateApp: "Rate App",
+            privacyPolicy: "Privacy Policy",
+            onboardingNext: "Next", onboardingStart: "Let's Go!",
+            onboardingSkip: "Skip",
+            onboarding1Title: "Welcome!", onboarding1Text: "Your professional combat sports timer for training and competition.",
+            onboarding2Title: "Fight Timer", onboarding2Text: "Presets for Boxing, MMA, K1, Muay Thai and more. Just select and start.",
+            onboarding3Title: "Interval Training", onboarding3Text: "Intense HIIT training for running, air bike, bag work and more. Fully customizable.",
+            onboarding4Title: "Track Progress", onboarding4Text: "All workouts are saved. Follow your progress in History and Statistics.",
             tabTodos: "Todos", todosTitle: "My Todos", todoAdd: "Add",
             todoPlaceholder: "New todo...", todoOpen: "Open", todoDone: "Done",
             todoEmpty: "No Todos", todoEmptyDesc: "Add your first todo",
@@ -321,6 +353,14 @@ struct Translations {
             warningEnabled: "صوت تحذير 10 ثوانٍ",
             language: "اللغة", about: "عن التطبيق", version: "الإصدار",
             developer: "المطور", presetsInfo: "معلومات الإعدادات", ok: "موافق",
+            feedbackButton: "إرسال ملاحظات", rateApp: "تقييم التطبيق",
+            privacyPolicy: "سياسة الخصوصية",
+            onboardingNext: "التالي", onboardingStart: "هيا نبدأ!",
+            onboardingSkip: "تخطي",
+            onboarding1Title: "!مرحباً", onboarding1Text: "مؤقتك الاحترافي للرياضات القتالية للتدريب والمنافسة.",
+            onboarding2Title: "مؤقت القتال", onboarding2Text: "إعدادات مسبقة للملاكمة وMMA وK1 والمواي تاي والمزيد.",
+            onboarding3Title: "تدريب الفترات", onboarding3Text: "تدريب HIIT مكثف للجري والدراجة الهوائية وكيس الملاكمة والمزيد.",
+            onboarding4Title: "تتبع التقدم", onboarding4Text: "يتم حفظ جميع التمارين. تابع تقدمك في السجل والإحصاءات.",
             tabTodos: "مهام", todosTitle: "مهامي", todoAdd: "إضافة",
             todoPlaceholder: "مهمة جديدة...", todoOpen: "مفتوح", todoDone: "منجز",
             todoEmpty: "لا توجد مهام", todoEmptyDesc: "أضف مهمتك الأولى",
@@ -361,6 +401,14 @@ struct Translations {
             warningEnabled: "Sonido de aviso 10 seg.",
             language: "Idioma", about: "Acerca de", version: "Versión",
             developer: "Desarrollador", presetsInfo: "Info de Presets", ok: "OK",
+            feedbackButton: "Enviar comentarios", rateApp: "Valorar la app",
+            privacyPolicy: "Política de privacidad",
+            onboardingNext: "Siguiente", onboardingStart: "¡Vamos!",
+            onboardingSkip: "Omitir",
+            onboarding1Title: "¡Bienvenido!", onboarding1Text: "Tu temporizador profesional de deportes de combate para entrenamiento y competición.",
+            onboarding2Title: "Cronómetro", onboarding2Text: "Ajustes para Boxeo, MMA, K1, Muay Thai y más. Solo selecciona y empieza.",
+            onboarding3Title: "Entrenamiento por Intervalos", onboarding3Text: "Entrenamiento HIIT intenso para correr, bicicleta y saco de boxeo. Totalmente personalizable.",
+            onboarding4Title: "Seguir el Progreso", onboarding4Text: "Todos los entrenamientos se guardan. Sigue tu progreso en Historial y Estadísticas.",
             tabTodos: "Tareas", todosTitle: "Mis Tareas", todoAdd: "Añadir",
             todoPlaceholder: "Nueva tarea...", todoOpen: "Pendiente", todoDone: "Hecho",
             todoEmpty: "Sin tareas", todoEmptyDesc: "Añade tu primera tarea",
@@ -401,6 +449,14 @@ struct Translations {
             warningEnabled: "Son d'avertissement 10 sec.",
             language: "Langue", about: "À propos", version: "Version",
             developer: "Développeur", presetsInfo: "Info Préréglages", ok: "OK",
+            feedbackButton: "Envoyer un avis", rateApp: "Noter l'app",
+            privacyPolicy: "Politique de confidentialité",
+            onboardingNext: "Suivant", onboardingStart: "C'est parti!",
+            onboardingSkip: "Passer",
+            onboarding1Title: "Bienvenue!", onboarding1Text: "Votre minuteur professionnel de sports de combat pour l'entraînement et la compétition.",
+            onboarding2Title: "Chrono Combat", onboarding2Text: "Préréglages pour Boxe, MMA, K1, Muay Thai et plus. Sélectionnez et démarrez.",
+            onboarding3Title: "Entraînement Intervalles", onboarding3Text: "Entraînement HIIT intense pour course, vélo et sac de frappe. Entièrement personnalisable.",
+            onboarding4Title: "Suivre la Progression", onboarding4Text: "Tous les entraînements sont sauvegardés. Suivez votre progression dans Historique et Statistiques.",
             tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
             todoPlaceholder: "Nouvelle tâche...", todoOpen: "En cours", todoDone: "Terminé",
             todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche",
@@ -441,6 +497,14 @@ struct Translations {
             warningEnabled: "Предупредительный звук 10 сек.",
             language: "Язык", about: "О приложении", version: "Версия",
             developer: "Разработчик", presetsInfo: "Информация о пресетах", ok: "OK",
+            feedbackButton: "Отправить отзыв", rateApp: "Оценить приложение",
+            privacyPolicy: "Политика конфиденциальности",
+            onboardingNext: "Далее", onboardingStart: "Начнём!",
+            onboardingSkip: "Пропустить",
+            onboarding1Title: "Добро пожаловать!", onboarding1Text: "Твой профессиональный таймер для боевых видов спорта.",
+            onboarding2Title: "Таймер Боя", onboarding2Text: "Пресеты для бокса, MMA, K1, муай-тай и других видов спорта.",
+            onboarding3Title: "Интервальная Тренировка", onboarding3Text: "Интенсивный HIIT для бега, велотренажёра, груши и многого другого.",
+            onboarding4Title: "Отслеживай Прогресс", onboarding4Text: "Все тренировки сохраняются. Следи за прогрессом в истории и статистике.",
             tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",
             todoPlaceholder: "Новая задача...", todoOpen: "Открытые", todoDone: "Выполнено",
             todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу",

@@ -13,6 +13,7 @@ struct Boxing_timerApp: App {
     @StateObject private var languageManager = LanguageManager()
     @StateObject private var todoManager = TodoManager()
     @StateObject private var promptManager = AppPromptManager()
+    @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingCompleted")
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
@@ -24,8 +25,11 @@ struct Boxing_timerApp: App {
                 .environmentObject(promptManager)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
                 .environment(\.layoutDirection, languageManager.current.layoutDirection)
-                // Zwingt SwiftUI die komplette View neu zu erstellen wenn die Sprache wechselt
                 .id(languageManager.current)
+                .fullScreenCover(isPresented: $showOnboarding) {
+                    OnboardingView(isPresented: $showOnboarding)
+                        .environmentObject(languageManager)
+                }
         }
     }
 }

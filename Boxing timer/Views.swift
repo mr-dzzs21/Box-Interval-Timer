@@ -770,7 +770,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "envelope")
                                 .foregroundColor(.blue)
-                            Text("Feedback senden")
+                            Text(lang.t.feedbackButton)
                                 .foregroundColor(.primary)
                         }
                     }
@@ -779,12 +779,12 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "star.fill")
                                 .foregroundColor(.yellow)
-                            Text("App bewerten")
+                            Text(lang.t.rateApp)
                                 .foregroundColor(.primary)
                         }
                     }
                     NavigationLink(destination: PrivacyPolicyView()) {
-                        Text("Datenschutzerklärung")
+                        Text(lang.t.privacyPolicy)
                     }
                 }
 
