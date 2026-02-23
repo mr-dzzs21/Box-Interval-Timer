@@ -774,6 +774,15 @@ struct SettingsView: View {
                                 .foregroundColor(.primary)
                         }
                     }
+                    // ⚠️ App Store ID hier eintragen nach Veröffentlichung: z.B. "1234567890"
+                    Link(destination: URL(string: "https://apps.apple.com/app/id0000000000?action=write-review")!) {
+                        HStack {
+                            Image(systemName: "star.fill")
+                                .foregroundColor(.yellow)
+                            Text("App bewerten")
+                                .foregroundColor(.primary)
+                        }
+                    }
                     NavigationLink(destination: PrivacyPolicyView()) {
                         Text("Datenschutzerklärung")
                     }
