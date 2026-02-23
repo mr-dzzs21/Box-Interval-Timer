@@ -675,7 +675,7 @@ struct FightTimerView: View {
                 ToolbarItem(placement: .principal) {
                     Button { showPicker = true } label: {
                         HStack(spacing: 4) {
-                            Text(vm.currentPreset.name).font(.headline)
+                            Text(lang.t.localizedPresetName(vm.currentPreset.name)).font(.headline)
                             Image(systemName: "chevron.down").font(.caption)
                         }
                         .padding(.horizontal, 12)
