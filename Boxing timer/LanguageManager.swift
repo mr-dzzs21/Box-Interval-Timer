@@ -218,15 +218,26 @@ struct Translations {
     let donationThankYou: String
 
     // Übersetzt den internen Preset-Namen in die gewählte Sprache
-    // Nur Boxen und Ringen ändern sich – MMA, K1, Judo etc. bleiben gleich
+    // Für Fight Timer: nur Boxen und Ringen ändern sich – MMA, K1, Judo etc. bleiben gleich
+    // Für Interval Timer: Geräte- und Level-Namen werden aus gespeicherten deutschen Rohwerten übersetzt
     func localizedPresetName(_ name: String) -> String {
+        // Fight Timer Presets
         if name.contains("Boxen") || name.contains("Boxing") {
             return "🥊 " + sportBoxen
         }
         if name.contains("Ringen") || name.contains("Wrestling") {
             return "🤼 " + sportRingen
         }
-        return name
+        // Interval Workout Namen: gespeicherte deutsche rawValues ersetzen
+        var result = name
+        result = result.replacingOccurrences(of: "🏃 Draußen laufen", with: deviceRunning)
+        result = result.replacingOccurrences(of: "🏋️ Laufband", with: deviceTreadmill)
+        result = result.replacingOccurrences(of: "🚴 AirBike", with: deviceAirBike)
+        result = result.replacingOccurrences(of: "🥊 Sandsack", with: deviceBagWork)
+        result = result.replacingOccurrences(of: "Anfänger", with: levelBeginner)
+        result = result.replacingOccurrences(of: "Fortgeschritten", with: levelIntermediate)
+        result = result.replacingOccurrences(of: "Profi", with: levelAdvanced)
+        return result
     }
 
     // Alle Sprachen

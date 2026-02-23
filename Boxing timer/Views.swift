@@ -245,7 +245,7 @@ struct HistoryView: View {
                             NavigationLink(destination: WorkoutDetailView(workout: w)) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(w.sportName ?? "Unknown").font(.headline)
+                                        Text(lang.t.localizedPresetName(w.sportName ?? "Unknown")).font(.headline)
                                         Text(w.mode ?? "").font(.subheadline).foregroundColor(.secondary)
                                         Text(formatDate(w.date ?? Date())).font(.caption).foregroundColor(.secondary)
                                     }
@@ -299,7 +299,7 @@ struct WorkoutDetailView: View {
     var body: some View {
         Form {
             Section(lang.t.general) {
-                LabeledContent(lang.t.sport, value: workout.sportName ?? "—")
+                LabeledContent(lang.t.sport, value: lang.t.localizedPresetName(workout.sportName ?? "—"))
                 LabeledContent(lang.t.mode, value: workout.mode ?? "—")
                 LabeledContent(lang.t.date, value: formatDate(workout.date ?? Date()))
                 LabeledContent(lang.t.duration, value: formatDuration(Int(workout.totalDuration)))
@@ -388,7 +388,8 @@ struct StatsView: View {
 
     private var mostPopularSport: String {
         let counts = Dictionary(grouping: workouts) { $0.sportName ?? "Unknown" }.mapValues { $0.count }
-        return counts.max(by: { $0.value < $1.value })?.key ?? "—"
+        let rawName = counts.max(by: { $0.value < $1.value })?.key ?? "—"
+        return lang.t.localizedPresetName(rawName)
     }
 
     private var currentStreak: Int {
