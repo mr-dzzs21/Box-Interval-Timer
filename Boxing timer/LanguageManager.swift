@@ -188,6 +188,12 @@ struct Translations {
     let todoEmpty: String
     let todoEmptyDesc: String
 
+    // Donation / Tip Jar
+    let donationTitle: String
+    let donationSubtitle: String
+    let donationSupport: String
+    let donationThankYou: String
+
     // Übersetzt den internen Preset-Namen in die gewählte Sprache
     // Nur Boxen und Ringen ändern sich – MMA, K1, Judo etc. bleiben gleich
     func localizedPresetName(_ name: String) -> String {
@@ -237,7 +243,10 @@ struct Translations {
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
             tabTodos: "Todos", todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
             todoPlaceholder: "Neues Todo...", todoOpen: "Offen", todoDone: "Erledigt",
-            todoEmpty: "Keine Todos", todoEmptyDesc: "Füge dein erstes Todo hinzu"
+            todoEmpty: "Keine Todos", todoEmptyDesc: "Füge dein erstes Todo hinzu",
+            donationTitle: "Entwickler unterstützen",
+            donationSubtitle: "Falls dir die App gefällt, freue ich mich über eine kleine Unterstützung 🙏",
+            donationSupport: "Unterstützen", donationThankYou: "Vielen Dank! 🙏"
         ),
 
         .english: Translations(
@@ -274,7 +283,10 @@ struct Translations {
             developer: "Developer", presetsInfo: "Presets Info", ok: "OK",
             tabTodos: "Todos", todosTitle: "My Todos", todoAdd: "Add",
             todoPlaceholder: "New todo...", todoOpen: "Open", todoDone: "Done",
-            todoEmpty: "No Todos", todoEmptyDesc: "Add your first todo"
+            todoEmpty: "No Todos", todoEmptyDesc: "Add your first todo",
+            donationTitle: "Support the Developer",
+            donationSubtitle: "If you enjoy the app, I'd appreciate your support 🙏",
+            donationSupport: "Support", donationThankYou: "Thank you so much! 🙏"
         ),
 
         .arabic: Translations(
@@ -311,7 +323,10 @@ struct Translations {
             developer: "المطور", presetsInfo: "معلومات الإعدادات", ok: "موافق",
             tabTodos: "مهام", todosTitle: "مهامي", todoAdd: "إضافة",
             todoPlaceholder: "مهمة جديدة...", todoOpen: "مفتوح", todoDone: "منجز",
-            todoEmpty: "لا توجد مهام", todoEmptyDesc: "أضف مهمتك الأولى"
+            todoEmpty: "لا توجد مهام", todoEmptyDesc: "أضف مهمتك الأولى",
+            donationTitle: "دعم المطور",
+            donationSubtitle: "إذا أعجبك التطبيق، يسعدني دعمك 🙏",
+            donationSupport: "دعم", donationThankYou: "شكراً جزيلاً! 🙏"
         ),
 
         .spanish: Translations(
@@ -348,7 +363,10 @@ struct Translations {
             developer: "Desarrollador", presetsInfo: "Info de Presets", ok: "OK",
             tabTodos: "Tareas", todosTitle: "Mis Tareas", todoAdd: "Añadir",
             todoPlaceholder: "Nueva tarea...", todoOpen: "Pendiente", todoDone: "Hecho",
-            todoEmpty: "Sin tareas", todoEmptyDesc: "Añade tu primera tarea"
+            todoEmpty: "Sin tareas", todoEmptyDesc: "Añade tu primera tarea",
+            donationTitle: "Apoya al Desarrollador",
+            donationSubtitle: "Si disfrutas la app, agradeceré tu apoyo 🙏",
+            donationSupport: "Apoyar", donationThankYou: "¡Muchas gracias! 🙏"
         ),
 
         .french: Translations(
@@ -385,7 +403,10 @@ struct Translations {
             developer: "Développeur", presetsInfo: "Info Préréglages", ok: "OK",
             tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
             todoPlaceholder: "Nouvelle tâche...", todoOpen: "En cours", todoDone: "Terminé",
-            todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche"
+            todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche",
+            donationTitle: "Soutenir le Développeur",
+            donationSubtitle: "Si vous aimez l'app, j'apprécierais votre soutien 🙏",
+            donationSupport: "Soutenir", donationThankYou: "Merci beaucoup ! 🙏"
         ),
 
         .russian: Translations(
@@ -422,7 +443,10 @@ struct Translations {
             developer: "Разработчик", presetsInfo: "Информация о пресетах", ok: "OK",
             tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",
             todoPlaceholder: "Новая задача...", todoOpen: "Открытые", todoDone: "Выполнено",
-            todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу"
+            todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу",
+            donationTitle: "Поддержать разработчика",
+            donationSubtitle: "Если тебе нравится приложение, буду рад твоей поддержке 🙏",
+            donationSupport: "Поддержать", donationThankYou: "Большое спасибо! 🙏"
         )
     ]
 }

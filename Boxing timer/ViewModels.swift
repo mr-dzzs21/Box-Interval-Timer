@@ -630,11 +630,11 @@ struct FightTimerView: View {
                         .foregroundColor(.primary)
                     
                     ZStack {
-                        Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 280, height: 280)
+                        Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
                         Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                            .frame(width: 280, height: 280).rotationEffect(.degrees(-90))
+                            .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
                             .animation(.linear(duration: 0.5), value: vm.progress)
-                        Text(vm.timeString).font(.system(size: 90, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                        Text(vm.timeString).font(.system(size: 110, weight: .bold, design: .rounded)).foregroundColor(.primary)
                     }
                     
                     Spacer()

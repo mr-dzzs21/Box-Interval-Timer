@@ -168,11 +168,11 @@ struct IntervalTimerView: View {
                 .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
 
             ZStack {
-                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 280, height: 280)
+                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
                 Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                    .frame(width: 280, height: 280).rotationEffect(.degrees(-90))
+                    .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
                     .animation(.linear(duration: 0.5), value: vm.progress)
-                Text(vm.timeString).font(.system(size: 90, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                Text(vm.timeString).font(.system(size: 110, weight: .bold, design: .rounded)).foregroundColor(.primary)
             }
 
             Spacer()
@@ -437,10 +437,125 @@ struct StatCard: View {
     }
 }
 
+// MARK: - Donation View
+struct DonationView: View {
+    @StateObject private var manager = DonationManager.shared
+    @EnvironmentObject var lang: LanguageManager
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 32) {
+
+                    // Header
+                    VStack(spacing: 12) {
+                        Text("🥊")
+                            .font(.system(size: 70))
+                        Text(lang.t.donationTitle)
+                            .font(.title2.bold())
+                            .multilineTextAlignment(.center)
+                        Text(lang.t.donationSubtitle)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .padding(.top, 20)
+
+                    // Produkte
+                    if manager.products.isEmpty {
+                        VStack(spacing: 16) {
+                            ProgressView()
+                                .scaleEffect(1.5)
+                            Text("Lädt...")
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.top, 20)
+                    } else {
+                        VStack(spacing: 14) {
+                            ForEach(manager.products, id: \.id) { product in
+                                DonationButton(product: product, manager: manager)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    Spacer(minLength: 20)
+                }
+            }
+            .navigationTitle(lang.t.donationSupport)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(lang.t.done) { dismiss() }
+                }
+            }
+            .task {
+                await manager.loadProducts()
+            }
+            .alert(lang.t.donationThankYou, isPresented: $manager.purchaseSuccess) {
+                Button(lang.t.ok, role: .cancel) { dismiss() }
+            }
+            .alert("Fehler", isPresented: Binding(
+                get: { manager.errorMessage != nil },
+                set: { if !$0 { manager.errorMessage = nil } }
+            )) {
+                Button(lang.t.ok, role: .cancel) { manager.errorMessage = nil }
+            } message: {
+                Text(manager.errorMessage ?? "")
+            }
+        }
+    }
+}
+
+// MARK: - Donation Button
+struct DonationButton: View {
+    let product: Product
+    @ObservedObject var manager: DonationManager
+
+    var emoji: String {
+        switch product.id {
+        case "tip.coffee":   return "☕"
+        case "tip.training": return "🥊"
+        case "tip.champion": return "🏆"
+        default:             return "💛"
+        }
+    }
+
+    var body: some View {
+        Button {
+            Task { await manager.purchase(product) }
+        } label: {
+            HStack(spacing: 16) {
+                Text(emoji)
+                    .font(.system(size: 36))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(product.displayName)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(product.description)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+                Text(product.displayPrice)
+                    .font(.title3.bold())
+                    .foregroundColor(.blue)
+            }
+            .padding(18)
+            .background(Color.blue.opacity(0.08))
+            .cornerRadius(16)
+        }
+        .disabled(manager.isPurchasing)
+    }
+}
+
 // MARK: - Settings View
 struct SettingsView: View {
     @EnvironmentObject var settings: UserSettings
     @EnvironmentObject var lang: LanguageManager
+    @State private var showDonation = false
 
     var body: some View {
         NavigationStack {
@@ -449,6 +564,21 @@ struct SettingsView: View {
                     Toggle(lang.t.soundEnabled, isOn: $settings.soundEnabled)
                     Toggle(lang.t.vibrationEnabled, isOn: $settings.vibrationEnabled)
                     Toggle(lang.t.warningEnabled, isOn: $settings.warningEnabled)
+                }
+
+                Section {
+                    Button {
+                        showDonation = true
+                    } label: {
+                        HStack {
+                            Text("🙏")
+                            Text(lang.t.donationSupport)
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(.red)
+                        }
+                    }
                 }
 
                 // Sprachauswahl
@@ -497,6 +627,9 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle(lang.t.settingsTitle)
+        }
+        .sheet(isPresented: $showDonation) {
+            DonationView()
         }
     }
 }
