@@ -625,7 +625,7 @@ struct FightTimerView: View {
                         Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
                             .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
                             .animation(.linear(duration: 0.5), value: vm.progress)
-                        Text(vm.timeString).font(.system(size: 110, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                        Text(vm.timeString).font(.system(size: 95, weight: .bold, design: .rounded)).foregroundColor(.primary)
                     }
 
                     Spacer()
@@ -743,6 +743,12 @@ struct PresetPickerView: View {
                                 Spacer()
                                 if selected.id == p.id { Image(systemName: "checkmark") }
                             }
+                        }
+                    }
+                    .onDelete { offsets in
+                        pm.delete(at: offsets)
+                        if !pm.customProfiles.contains(where: { $0.id == selected.id }) {
+                            selected = FightPreset.defaultPresets[0]
                         }
                     }
                 }

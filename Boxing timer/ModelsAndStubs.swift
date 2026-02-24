@@ -232,6 +232,11 @@ class ProfileManager: ObservableObject {
         customProfiles.append(newProfile)
         saveProfiles()
     }
+
+    func delete(at offsets: IndexSet) {
+        customProfiles.remove(atOffsets: offsets)
+        saveProfiles()
+    }
     
     private func saveProfiles() {
         if let encoded = try? JSONEncoder().encode(customProfiles) {
