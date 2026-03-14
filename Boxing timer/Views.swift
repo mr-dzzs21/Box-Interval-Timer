@@ -175,52 +175,83 @@ struct IntervalTimerView: View {
     }
 
     var timerView: some View {
-        VStack(spacing: 30) {
-            Spacer()
+        GeometryReader { geo in
+            if geo.size.width > geo.size.height {
+                // QUERFORMAT
+                HStack(spacing: 0) {
+                    Text(vm.timeString)
+                        .font(.system(size: geo.size.height * 0.65, weight: .bold, design: .rounded))
+                        .foregroundColor(.primary)
+                        .minimumScaleFactor(0.3)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
-            Text(vm.phaseText)
-                .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
-
-            ZStack {
-                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
-                Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                    .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 0.5), value: vm.progress)
-                Text(vm.timeString).font(.system(size: 102, weight: .bold, design: .rounded)).foregroundColor(.primary)
-            }
-
-            Spacer()
-
-            HStack(spacing: 30) {
-                Button { vm.reset() } label: {
-                    Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
-                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
+                    VStack(spacing: 24) {
+                        Button { vm.reset() } label: {
+                            Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
+                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
+                        }
+                        Button {
+                            if vm.status == .running { vm.pause() }
+                            else { vm.status == .idle ? vm.start() : vm.resume() }
+                        } label: {
+                            Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
+                                .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
+                        }
+                        Button { vm.skip() } label: {
+                            Image(systemName: "forward.fill").font(.system(size: 28))
+                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
+                        }
+                    }
+                    .foregroundColor(.primary)
+                    .padding(.trailing, 40)
                 }
-                Button {
-                    if vm.status == .running { vm.pause() }
-                    else { vm.status == .idle ? vm.start() : vm.resume() }
-                } label: {
-                    Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
-                        .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                // HOCHFORMAT
+                VStack(spacing: 30) {
+                    Spacer()
+                    Text(vm.phaseText)
+                        .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
+                    ZStack {
+                        Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
+                        Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
+                            .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
+                            .animation(.linear(duration: 0.5), value: vm.progress)
+                        Text(vm.timeString).font(.system(size: 102, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                    }
+                    Spacer()
+                    HStack(spacing: 30) {
+                        Button { vm.reset() } label: {
+                            Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
+                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
+                        }
+                        Button {
+                            if vm.status == .running { vm.pause() }
+                            else { vm.status == .idle ? vm.start() : vm.resume() }
+                        } label: {
+                            Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
+                                .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
+                        }
+                        Button { vm.skip() } label: {
+                            Image(systemName: "forward.fill").font(.system(size: 28))
+                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
+                        }
+                    }
+                    .foregroundColor(.primary)
+                    Button(lang.t.saveWorkout) {
+                        vm.saveWorkoutToHistory(context: context)
+                        showSaved = true
+                        promptManager.recordWorkoutCompleted()
+                    }
+                    .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
+                    .background(Color.blue).cornerRadius(12).padding(.horizontal)
+                    .opacity(vm.phase == .finished ? 1 : 0)
+                    .disabled(vm.phase != .finished)
                 }
-                Button { vm.skip() } label: {
-                    Image(systemName: "forward.fill").font(.system(size: 28))
-                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                }
+                .padding()
             }
-            .foregroundColor(.primary)
-
-            Button(lang.t.saveWorkout) {
-                vm.saveWorkoutToHistory(context: context)
-                showSaved = true
-                promptManager.recordWorkoutCompleted()
-            }
-            .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
-            .background(Color.blue).cornerRadius(12).padding(.horizontal)
-            .opacity(vm.phase == .finished ? 1 : 0)
-            .disabled(vm.phase != .finished)
         }
-        .padding()
         .alert(lang.t.saved, isPresented: $showSaved) {
             Button(lang.t.ok, role: .cancel) {}
         }
