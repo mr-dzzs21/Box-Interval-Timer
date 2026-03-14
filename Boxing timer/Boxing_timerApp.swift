@@ -32,7 +32,7 @@ struct Boxing_timerApp: App {
                     OnboardingView(isPresented: $showOnboarding)
                         .environmentObject(languageManager)
                 }
-                .onChange(of: scenePhase) { _, phase in
+                .onChange(of: scenePhase) { phase in
                     if phase == .active {
                         todoManager.recordAppOpen()
                         todoManager.scheduleNotificationIfNeeded()
@@ -71,7 +71,7 @@ struct MainTabView: View {
         .sheet(isPresented: $promptManager.showDonationPrompt) {
             DonationPromptView()
         }
-        .onChange(of: promptManager.completedWorkoutsCount) { _, _ in
+        .onChange(of: promptManager.completedWorkoutsCount) { _ in
             if promptManager.shouldRequestReview() {
                 requestReview()
             }

@@ -665,7 +665,7 @@ struct FightTimerView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { vm.settings = settings; vm.language = lang.current }
-            .onChange(of: lang.current) { _, new in vm.language = new }
+            .onChange(of: lang.current) { new in vm.language = new }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { showSettings = true } label: {

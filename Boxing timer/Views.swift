@@ -40,7 +40,7 @@ struct IntervalTimerView: View {
             .navigationTitle(lang.t.intervalTitle)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { vm.settings = settings; vm.language = lang.current }
-            .onChange(of: lang.current) { _, new in vm.language = new }
+            .onChange(of: lang.current) { new in vm.language = new }
             .toolbar {
                 if !showConfig {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -754,7 +754,7 @@ struct SettingsView: View {
 
                 Section("Todos") {
                     Toggle(lang.t.todoNotifications, isOn: $settings.todoNotificationsEnabled)
-                        .onChange(of: settings.todoNotificationsEnabled) { _, enabled in
+                        .onChange(of: settings.todoNotificationsEnabled) { enabled in
                             if enabled {
                                 UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
                                     DispatchQueue.main.async {
