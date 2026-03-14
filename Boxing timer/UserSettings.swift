@@ -28,10 +28,17 @@ class UserSettings: ObservableObject {
         }
     }
 
+    @Published var todoNotificationsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(todoNotificationsEnabled, forKey: "todoNotificationsEnabled")
+        }
+    }
+
     init() {
         self.soundEnabled = UserDefaults.standard.bool(forKey: "soundEnabled")
         self.vibrationEnabled = UserDefaults.standard.bool(forKey: "vibrationEnabled")
         self.warningEnabled = UserDefaults.standard.bool(forKey: "warningEnabled")
+        self.todoNotificationsEnabled = UserDefaults.standard.bool(forKey: "todoNotificationsEnabled")
 
         if !UserDefaults.standard.bool(forKey: "soundEnabledSet") {
             self.soundEnabled = true
@@ -50,5 +57,6 @@ class UserSettings: ObservableObject {
             UserDefaults.standard.set(true, forKey: "warningEnabled")
             UserDefaults.standard.set(true, forKey: "warningEnabledSet")
         }
+
     }
 }

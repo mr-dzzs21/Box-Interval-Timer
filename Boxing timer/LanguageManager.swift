@@ -210,6 +210,7 @@ struct Translations {
     let todoDone: String
     let todoEmpty: String
     let todoEmptyDesc: String
+    let todoNotifications: String
 
     // Donation / Tip Jar
     let donationTitle: String
@@ -303,6 +304,7 @@ struct Translations {
             tabTodos: "Todos", todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
             todoPlaceholder: "Neues Todo...", todoOpen: "Offen", todoDone: "Erledigt",
             todoEmpty: "Keine Todos", todoEmptyDesc: "Füge dein erstes Todo hinzu",
+            todoNotifications: "Todo-Erinnerungen",
             donationTitle: "Entwickler unterstützen",
             donationSubtitle: "Falls dir die App gefällt, freue ich mich über eine kleine Unterstützung 🙏",
             donationSupport: "Unterstützen", donationThankYou: "Vielen Dank! 🙏",
@@ -365,6 +367,7 @@ struct Translations {
             tabTodos: "Todos", todosTitle: "My Todos", todoAdd: "Add",
             todoPlaceholder: "New todo...", todoOpen: "Open", todoDone: "Done",
             todoEmpty: "No Todos", todoEmptyDesc: "Add your first todo",
+            todoNotifications: "Todo Reminders",
             donationTitle: "Support the Developer",
             donationSubtitle: "If you enjoy the app, I'd appreciate your support 🙏",
             donationSupport: "Support", donationThankYou: "Thank you so much! 🙏",
@@ -427,6 +430,7 @@ struct Translations {
             tabTodos: "مهام", todosTitle: "مهامي", todoAdd: "إضافة",
             todoPlaceholder: "مهمة جديدة...", todoOpen: "مفتوح", todoDone: "منجز",
             todoEmpty: "لا توجد مهام", todoEmptyDesc: "أضف مهمتك الأولى",
+            todoNotifications: "تذكيرات المهام",
             donationTitle: "دعم المطور",
             donationSubtitle: "إذا أعجبك التطبيق، يسعدني دعمك 🙏",
             donationSupport: "دعم", donationThankYou: "شكراً جزيلاً! 🙏",
@@ -489,6 +493,7 @@ struct Translations {
             tabTodos: "Tareas", todosTitle: "Mis Tareas", todoAdd: "Añadir",
             todoPlaceholder: "Nueva tarea...", todoOpen: "Pendiente", todoDone: "Hecho",
             todoEmpty: "Sin tareas", todoEmptyDesc: "Añade tu primera tarea",
+            todoNotifications: "Recordatorios de tareas",
             donationTitle: "Apoya al Desarrollador",
             donationSubtitle: "Si disfrutas la app, agradeceré tu apoyo 🙏",
             donationSupport: "Apoyar", donationThankYou: "¡Muchas gracias! 🙏",
@@ -551,6 +556,7 @@ struct Translations {
             tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
             todoPlaceholder: "Nouvelle tâche...", todoOpen: "En cours", todoDone: "Terminé",
             todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche",
+            todoNotifications: "Rappels de tâches",
             donationTitle: "Soutenir le Développeur",
             donationSubtitle: "Si vous aimez l'app, j'apprécierais votre soutien 🙏",
             donationSupport: "Soutenir", donationThankYou: "Merci beaucoup ! 🙏",
@@ -613,6 +619,7 @@ struct Translations {
             tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",
             todoPlaceholder: "Новая задача...", todoOpen: "Открытые", todoDone: "Выполнено",
             todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу",
+            todoNotifications: "Напоминания о задачах",
             donationTitle: "Поддержать разработчика",
             donationSubtitle: "Если тебе нравится приложение, буду рад твоей поддержке 🙏",
             donationSupport: "Поддержать", donationThankYou: "Большое спасибо! 🙏",

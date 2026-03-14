@@ -6,6 +6,7 @@
 import SwiftUI
 import CoreData
 import StoreKit
+import UserNotifications
 
 // MARK: - Interval Timer View
 struct IntervalTimerView: View {
@@ -749,6 +750,25 @@ struct SettingsView: View {
                     Toggle(lang.t.soundEnabled, isOn: $settings.soundEnabled)
                     Toggle(lang.t.vibrationEnabled, isOn: $settings.vibrationEnabled)
                     Toggle(lang.t.warningEnabled, isOn: $settings.warningEnabled)
+                }
+
+                Section("Todos") {
+                    Toggle(lang.t.todoNotifications, isOn: $settings.todoNotificationsEnabled)
+                        .onChange(of: settings.todoNotificationsEnabled) { _, enabled in
+                            if enabled {
+                                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                                    DispatchQueue.main.async {
+                                        if granted {
+                                            TodoManager.shared.scheduleNotificationIfNeeded()
+                                        } else {
+                                            settings.todoNotificationsEnabled = false
+                                        }
+                                    }
+                                }
+                            } else {
+                                TodoManager.shared.cancelNotifications()
+                            }
+                        }
                 }
 
                 Section {

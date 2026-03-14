@@ -6,14 +6,16 @@
 import SwiftUI
 import CoreData
 import StoreKit
+import UserNotifications
 
 @main
 struct Boxing_timerApp: App {
     @StateObject private var userSettings = UserSettings()
     @StateObject private var languageManager = LanguageManager()
-    @StateObject private var todoManager = TodoManager()
+    @StateObject private var todoManager = TodoManager.shared
     @StateObject private var promptManager = AppPromptManager()
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingCompleted")
+    @Environment(\.scenePhase) private var scenePhase
     let persistenceController = PersistenceController.shared
 
     var body: some Scene {
@@ -29,6 +31,12 @@ struct Boxing_timerApp: App {
                 .fullScreenCover(isPresented: $showOnboarding) {
                     OnboardingView(isPresented: $showOnboarding)
                         .environmentObject(languageManager)
+                }
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active {
+                        todoManager.recordAppOpen()
+                        todoManager.scheduleNotificationIfNeeded()
+                    }
                 }
         }
     }
