@@ -246,8 +246,9 @@ struct IntervalTimerView: View {
                     }
                     .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
                     .background(Color.blue).cornerRadius(12).padding(.horizontal)
-                    .opacity(vm.phase == .finished ? 1 : 0)
-                    .disabled(vm.phase != .finished)
+                    .opacity(vm.status == .running || vm.status == .idle ? 0 : 1)
+                    .disabled(vm.status == .running || vm.status == .idle)
+                    .padding(.bottom, 90)
                 }
                 .padding()
             }

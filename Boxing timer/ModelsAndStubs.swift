@@ -135,7 +135,7 @@ class SoundManager {
     static let shared = SoundManager()
 
     init() {
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
         try? AVAudioSession.sharedInstance().setActive(true)
     }
 
