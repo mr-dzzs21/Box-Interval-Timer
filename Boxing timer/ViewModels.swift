@@ -647,16 +647,17 @@ struct FightTimerView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         // HOCHFORMAT
-                        VStack(spacing: 30) {
+                        let circleSize = min(geo.size.width * 0.82, geo.size.height * 0.48, 320)
+                        VStack(spacing: 12) {
                             Spacer()
                             Text(vm.phaseText)
                                 .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
                             ZStack {
-                                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: 320, height: 320)
+                                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: circleSize, height: circleSize)
                                 Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                                    .frame(width: 320, height: 320).rotationEffect(.degrees(-90))
+                                    .frame(width: circleSize, height: circleSize).rotationEffect(.degrees(-90))
                                     .animation(.linear(duration: 0.5), value: vm.progress)
-                                Text(vm.timeString).font(.system(size: 102, weight: .bold, design: .rounded)).foregroundColor(.primary)
+                                Text(vm.timeString).font(.system(size: min(102, circleSize * 0.33), weight: .bold, design: .rounded)).foregroundColor(.primary)
                             }
                             Spacer()
                             HStack(spacing: 30) {
@@ -682,15 +683,17 @@ struct FightTimerView: View {
                                 showSaved = true
                                 promptManager.recordWorkoutCompleted()
                             }
-                            .font(.headline).foregroundColor(.white).frame(maxWidth: .infinity).padding()
-                            .background(Color.blue).cornerRadius(12).padding(.horizontal)
-                            .opacity(vm.status == .running || vm.status == .idle ? 0 : 1)
-                            .disabled(vm.status == .running || vm.status == .idle)
-                            .padding(.bottom, 90)
+                            .font(.headline).foregroundColor(.white)
+                            .frame(maxWidth: .infinity).padding()
+                            .background(Color.blue).cornerRadius(12)
+                            .opacity(vm.status == .paused ? 1 : 0)
+                            .disabled(vm.status != .paused)
                         }
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.bottom)
                     }
                 }
+
             }
             .navigationBarTitleDisplayMode(.inline)
             .onAppear { vm.settings = settings; vm.language = lang.current }
