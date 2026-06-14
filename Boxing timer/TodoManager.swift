@@ -51,6 +51,12 @@ class TodoManager: ObservableObject {
         scheduleNotificationIfNeeded()
     }
 
+    func delete(ids: [UUID]) {
+        todos.removeAll { ids.contains($0.id) }
+        save()
+        scheduleNotificationIfNeeded()
+    }
+
     // MARK: - Usage Tracking
 
     func recordAppOpen() {

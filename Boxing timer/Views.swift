@@ -17,6 +17,7 @@ struct IntervalTimerView: View {
     @State private var showConfig = true
     @State private var showSaved = false
     @Environment(\.managedObjectContext) private var context
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject var settings: UserSettings
     @EnvironmentObject var lang: LanguageManager
     @EnvironmentObject var promptManager: AppPromptManager
@@ -40,8 +41,18 @@ struct IntervalTimerView: View {
             }
             .navigationTitle(lang.t.intervalTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear { vm.settings = settings; vm.language = lang.current }
+            .onAppear {
+                vm.settings = settings
+                vm.language = lang.current
+                vm.historyContext = context
+                vm.onWorkoutSaved = { promptManager.recordWorkoutCompleted() }
+            }
             .onChange(of: lang.current) { new in vm.language = new }
+            .onChange(of: scenePhase) { phase in
+                if phase == .active {
+                    vm.refreshFromClock()
+                }
+            }
             .alert(lang.t.saved, isPresented: $showSaved) {
                 Button(lang.t.ok, role: .cancel) {}
             }
@@ -243,16 +254,16 @@ struct IntervalTimerView: View {
                         }
                     }
                     .foregroundColor(.primary)
-                    Button(lang.t.saveWorkout) {
-                        vm.saveWorkoutToHistory(context: context)
-                        showSaved = true
-                        promptManager.recordWorkoutCompleted()
+                    Button(vm.hasSavedCurrentWorkout ? lang.t.saved : lang.t.saveWorkout) {
+                        if vm.saveWorkoutToHistory(context: context) {
+                            showSaved = true
+                        }
                     }
                     .font(.headline).foregroundColor(.white)
                     .frame(maxWidth: .infinity).padding()
                     .background(Color.blue).cornerRadius(12)
                     .opacity(vm.status == .paused ? 1 : 0)
-                    .disabled(vm.status != .paused)
+                    .disabled(vm.status != .paused || vm.hasSavedCurrentWorkout)
                 }
                 .padding(.horizontal)
                 .padding(.bottom)
@@ -341,6 +352,13 @@ struct HistoryView: View {
 struct WorkoutDetailView: View {
     let workout: WorkoutHistoryEntity
     @EnvironmentObject var lang: LanguageManager
+    @Environment(\.managedObjectContext) private var context
+    @State private var notes: String = ""
+
+    init(workout: WorkoutHistoryEntity) {
+        self.workout = workout
+        _notes = State(initialValue: workout.notes ?? "")
+    }
 
     var body: some View {
         Form {
@@ -349,6 +367,16 @@ struct WorkoutDetailView: View {
                 LabeledContent(lang.t.mode, value: workout.mode ?? "—")
                 LabeledContent(lang.t.date, value: formatDate(workout.date ?? Date()))
                 LabeledContent(lang.t.duration, value: formatDuration(Int(workout.totalDuration)))
+            }
+
+            Section(lang.t.notes) {
+                TextEditor(text: $notes)
+                    .frame(minHeight: 100)
+                Button(lang.t.saveNotes) {
+                    workout.notes = notes
+                    try? context.save()
+                }
+                .disabled(notes == (workout.notes ?? ""))
             }
 
             if workout.mode == "Fight Timer" {
@@ -392,79 +420,161 @@ struct StatsView: View {
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \WorkoutHistoryEntity.date, ascending: false)]
     ) private var workouts: FetchedResults<WorkoutHistoryEntity>
+    @StateObject private var vm = StatsViewModel()
+    @Environment(\.managedObjectContext) private var context
     @EnvironmentObject var lang: LanguageManager
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    HStack(spacing: 15) {
-                        StatCard(title: lang.t.workoutsLabel, value: "\(workouts.count)", icon: "flame.fill", color: .orange)
-                        StatCard(title: lang.t.streak, value: "\(currentStreak)", icon: "calendar", color: .blue)
+                VStack(spacing: 25) {
+                    // Quick Stats
+                    VStack(spacing: 15) {
+                        HStack(spacing: 15) {
+                            StatCard(title: lang.t.workoutsLabel, value: "\(vm.totalWorkouts)", icon: "flame.fill", color: .orange)
+                            StatCard(title: lang.t.streak, value: "\(vm.currentStreak)", icon: "calendar", color: .blue)
+                        }
+                        HStack(spacing: 15) {
+                            StatCard(title: lang.t.thisWeek, value: "\(vm.last7Days)", icon: "chart.bar.fill", color: .green)
+                            StatCard(title: lang.t.totalTime, value: formatTotalTime(vm.totalDuration), icon: "clock.fill", color: .purple)
+                        }
                     }
-                    HStack(spacing: 15) {
-                        StatCard(title: lang.t.thisWeek, value: "\(last7Days)", icon: "chart.bar.fill", color: .green)
-                        StatCard(title: lang.t.totalTime, value: formatTotalTime(totalDuration), icon: "clock.fill", color: .purple)
+                    .padding(.horizontal)
+
+                    // Heatmap
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(lang.t.heatmapTitle).font(.headline)
+                        HeatmapView(workouts: Array(workouts))
                     }
+                    .padding(.horizontal)
+
+                    // Achievements
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(lang.t.achievementsTitle).font(.headline)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 15) {
+                                ForEach(vm.achievements) { achievement in
+                                    AchievementCard(achievement: achievement)
+                                }
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    // Favorite Sport
                     VStack(alignment: .leading, spacing: 10) {
                         Text(lang.t.favoriteSport).font(.headline)
                         HStack {
-                            Text(mostPopularSport).font(.title).fontWeight(.bold)
+                            Text(vm.mostPopularSport).font(.title).fontWeight(.bold)
                             Spacer()
                         }
                         .padding().frame(maxWidth: .infinity)
                         .background(Color.blue.opacity(0.1)).cornerRadius(12)
                     }
                     .padding(.horizontal)
+                    .padding(.bottom, 30)
                 }
                 .padding(.top)
             }
             .navigationTitle(lang.t.statsTitle)
+            .onAppear {
+                vm.calculate(context: context, lang: lang.t)
+            }
+            .onChange(of: workouts.count) { _ in
+                vm.calculate(context: context, lang: lang.t)
+            }
         }
-    }
-
-    private var totalDuration: Int {
-        workouts.reduce(0) { $0 + Int($1.totalDuration) }
-    }
-
-    private var last7Days: Int {
-        let sevenDaysAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date())!
-        return workouts.filter { ($0.date ?? Date()) >= sevenDaysAgo }.count
-    }
-
-    private var mostPopularSport: String {
-        let counts = Dictionary(grouping: workouts) { $0.sportName ?? "Unknown" }.mapValues { $0.count }
-        let rawName = counts.max(by: { $0.value < $1.value })?.key ?? "—"
-        return lang.t.localizedPresetName(rawName)
-    }
-
-    private var currentStreak: Int {
-        guard !workouts.isEmpty else { return 0 }
-        let calendar = Calendar.current
-        let trainingDays = Set(workouts.compactMap { w -> Date? in
-            guard let date = w.date else { return nil }
-            return calendar.startOfDay(for: date)
-        }).sorted(by: >)
-
-        let today = calendar.startOfDay(for: Date())
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-
-        guard let mostRecent = trainingDays.first,
-              mostRecent == today || mostRecent == yesterday else { return 0 }
-
-        var streak = 1
-        var checkDate = mostRecent
-        for day in trainingDays.dropFirst() {
-            let expectedPrevious = calendar.date(byAdding: .day, value: -1, to: checkDate)!
-            if day == expectedPrevious { streak += 1; checkDate = day } else { break }
-        }
-        return streak
     }
 
     private func formatTotalTime(_ seconds: Int) -> String {
         let hours = seconds / 3600
         let minutes = (seconds % 3600) / 60
         if hours > 0 { return "\(hours)h \(minutes)m" } else { return "\(minutes) min" }
+    }
+}
+
+struct HeatmapView: View {
+    let workouts: [WorkoutHistoryEntity]
+    private let calendar = Calendar.current
+    private let daysToShow = 7 * 20 // 20 Wochen
+
+    var body: some View {
+        let trainingDays = getTrainingDays()
+        let today = calendar.startOfDay(for: Date())
+        
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 4) {
+                ForEach(0..<20) { week in
+                    VStack(spacing: 4) {
+                        ForEach(0..<7) { day in
+                            let date = getDate(week: week, day: day, from: today)
+                            let count = trainingDays[date] ?? 0
+                            
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(colorFor(count: count))
+                                .frame(width: 14, height: 14)
+                        }
+                    }
+                }
+            }
+            .padding(8)
+            .background(Color.black.opacity(0.05))
+            .cornerRadius(10)
+        }
+    }
+
+    private func getDate(week: Int, day: Int, from today: Date) -> Date {
+        let daysToSubtract = (19 - week) * 7 + (6 - day)
+        return calendar.date(byAdding: .day, value: -daysToSubtract, to: today) ?? today
+    }
+
+    private func getTrainingDays() -> [Date: Int] {
+        var counts: [Date: Int] = [:]
+        for w in workouts {
+            if let date = w.date {
+                let day = calendar.startOfDay(for: date)
+                counts[day, default: 0] += 1
+            }
+        }
+        return counts
+    }
+
+    private func colorFor(count: Int) -> Color {
+        if count == 0 { return Color.gray.opacity(0.2) }
+        if count == 1 { return Color.green.opacity(0.4) }
+        if count == 2 { return Color.green.opacity(0.7) }
+        return Color.green
+    }
+}
+
+struct AchievementCard: View {
+    let achievement: Achievement
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(achievement.isUnlocked ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1))
+                    .frame(width: 60, height: 60)
+                Image(systemName: achievement.icon)
+                    .font(.system(size: 30))
+                    .foregroundColor(achievement.isUnlocked ? .blue : .gray)
+            }
+            Text(achievement.title)
+                .font(.caption).fontWeight(.bold)
+                .foregroundColor(achievement.isUnlocked ? .primary : .secondary)
+            Text(achievement.description)
+                .font(.system(size: 8))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(width: 80)
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .opacity(achievement.isUnlocked ? 1.0 : 0.6)
     }
 }
 
@@ -498,11 +608,11 @@ struct DonationPromptView: View {
             Text("🥊")
                 .font(.system(size: 70))
 
-            Text("Du trainierst jetzt seit einem Monat!")
+            Text(lang.t.donationTitle)
                 .font(.title2.bold())
                 .multilineTextAlignment(.center)
 
-            Text("Falls Boxing Interval Timer dir bei deinem Training hilft, freue ich mich sehr über eine kleine Unterstützung. Das hilft mir die App weiterzuentwickeln 🙏")
+            Text(lang.t.donationSubtitle)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -524,7 +634,7 @@ struct DonationPromptView: View {
             }
             .padding(.horizontal)
 
-            Button("Vielleicht später") {
+            Button(lang.t.cancel) {
                 dismiss()
             }
             .foregroundColor(.secondary)
@@ -842,7 +952,7 @@ struct SettingsView: View {
                     HStack {
                         Text(lang.t.version)
                         Spacer()
-                        Text("1.0.0").foregroundColor(.secondary)
+                        Text(appVersion).foregroundColor(.secondary)
                     }
                     HStack {
                         Text(lang.t.developer)
@@ -891,6 +1001,15 @@ struct SettingsView: View {
         .sheet(isPresented: $showDonation) {
             DonationView()
         }
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
+        if let build, !build.isEmpty {
+            return "\(version) (\(build))"
+        }
+        return version
     }
 }
 

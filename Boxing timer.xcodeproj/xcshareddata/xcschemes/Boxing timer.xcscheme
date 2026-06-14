@@ -35,6 +35,17 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "8D7A00032F60000000AA0003"
+               BuildableName = "Boxing timerTests.xctest"
+               BlueprintName = "Boxing timerTests"
+               ReferencedContainer = "container:Boxing timer.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "8D2B68FF2F530093007BC9F3"
                BuildableName = "Boxing timerUITests.xctest"
                BlueprintName = "Boxing timerUITests"

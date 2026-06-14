@@ -31,7 +31,7 @@ extension IntervalLevel {
     }
 }
 
-// Die 6 unterstützten Sprachen
+// Die 7 unterstützten Sprachen
 enum AppLanguage: String, CaseIterable, Codable {
     case german  = "de"
     case english = "en"
@@ -39,6 +39,7 @@ enum AppLanguage: String, CaseIterable, Codable {
     case spanish = "es"
     case french  = "fr"
     case russian = "ru"
+    case portuguese = "pt"
 
     var displayName: String {
         switch self {
@@ -48,6 +49,7 @@ enum AppLanguage: String, CaseIterable, Codable {
         case .spanish: return "🇪🇸 Español"
         case .french:  return "🇫🇷 Français"
         case .russian: return "🇷🇺 Русский"
+        case .portuguese: return "🇵🇹 Português"
         }
     }
 
@@ -100,6 +102,22 @@ struct Translations {
     let tabHistory: String
     let tabStats: String
     let tabSettings: String
+    let tabStopwatch: String
+    let tabTodos: String
+
+    // Achievements & Heatmap
+    let heatmapTitle: String
+    let achievementsTitle: String
+    let notes: String
+    let saveNotes: String
+    
+    // Achievements
+    let achievementWarriorTitle: String
+    let achievementWarriorDesc: String
+    let achievementHardWorkerTitle: String
+    let achievementHardWorkerDesc: String
+    let achievementProFighterTitle: String
+    let achievementProFighterDesc: String
 
     // Fight Timer
     let fightTimerTitle: String
@@ -200,26 +218,23 @@ struct Translations {
     let onboarding3Text: String
     let onboarding4Title: String
     let onboarding4Text: String
+// Stoppuhr
+let stopwatchTitle: String
+let stopwatchLap: String
+let stopwatchReset: String
+let stopwatchStart: String
+let stopwatchStop: String
+let stopwatchLaps: String
 
-    // Stoppuhr
-    let tabStopwatch: String
-    let stopwatchTitle: String
-    let stopwatchLap: String
-    let stopwatchReset: String
-    let stopwatchStart: String
-    let stopwatchStop: String
-    let stopwatchLaps: String
-
-    // Todos
-    let tabTodos: String
-    let todosTitle: String
-    let todoAdd: String
-    let todoPlaceholder: String
-    let todoOpen: String
-    let todoDone: String
-    let todoEmpty: String
-    let todoEmptyDesc: String
-    let todoNotifications: String
+// Todos
+let todosTitle: String
+let todoAdd: String
+let todoPlaceholder: String
+let todoOpen: String
+let todoDone: String
+let todoEmpty: String
+let todoEmptyDesc: String
+let todoNotifications: String
 
     // Donation / Tip Jar
     let donationTitle: String
@@ -275,7 +290,14 @@ struct Translations {
             phaseFinished: "FERTIG!", phaseWork: "WORK", phaseRound: "RUNDE",
             tabFightTimer: "Fight Timer", tabIntervals: "Intervals",
             tabHistory: "History", tabStats: "Stats", tabSettings: "Settings",
-            fightTimerTitle: "Fight Timer", chooseTimer: "Timer wählen",
+            tabStopwatch: "Stoppuhr", tabTodos: "Todos",
+            heatmapTitle: "Trainings-Heatmap", achievementsTitle: "Erfolge",
+            notes: "Notizen", saveNotes: "Notizen speichern",
+            achievementWarriorTitle: "Kriegergeist", achievementWarriorDesc: "10 Tage Trainings-Serie",
+            achievementHardWorkerTitle: "Fleißiger Arbeiter", achievementHardWorkerDesc: "8 Stunden Gesamttraining",
+            achievementProFighterTitle: "Profi-Kämpfer", achievementProFighterDesc: "Eine 12-Runden-Session beendet",
+            fightTimerTitle: "Fight Timer",
+            chooseTimer: "Timer wählen",
             standardPresets: "Standard Presets", customProfiles: "Custom Profile",
             customizations: "Anpassungen", warmUp: "Warm-up", rounds: "Runden",
             roundTime: "Rundenzeit", rest: "Pause", cancel: "Abbrechen", done: "Fertig",
@@ -310,10 +332,11 @@ struct Translations {
             onboarding2Title: "Fight Timer", onboarding2Text: "Presets für Boxen, MMA, K1, Muay Thai und mehr. Einfach auswählen und loslegen.",
             onboarding3Title: "Interval Training", onboarding3Text: "Intensives HIIT Training für Laufen, AirBike, Sandsack und mehr. Auch komplett anpassbar.",
             onboarding4Title: "Fortschritt tracken", onboarding4Text: "Alle Workouts werden gespeichert. Verfolge deinen Fortschritt in History und Statistiken.",
-            tabStopwatch: "Stoppuhr", stopwatchTitle: "Stoppuhr", stopwatchLap: "Runde",
+            stopwatchTitle: "Stoppuhr", stopwatchLap: "Runde",
             stopwatchReset: "Reset", stopwatchStart: "Start", stopwatchStop: "Stop",
             stopwatchLaps: "Runden",
-            tabTodos: "Todos", todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
+            todosTitle: "Meine Todos", todoAdd: "Hinzufügen",
+
             todoPlaceholder: "Neues Todo...", todoOpen: "Offen", todoDone: "Erledigt",
             todoEmpty: "Keine Todos", todoEmptyDesc: "Füge dein erstes Todo hinzu",
             todoNotifications: "Todo-Erinnerungen",
@@ -341,8 +364,15 @@ struct Translations {
             phaseFinished: "DONE!", phaseWork: "WORK", phaseRound: "ROUND",
             tabFightTimer: "Fight Timer", tabIntervals: "Intervals",
             tabHistory: "History", tabStats: "Stats", tabSettings: "Settings",
+            tabStopwatch: "Stopwatch", tabTodos: "Todos",
+            heatmapTitle: "Workout Heatmap", achievementsTitle: "Achievements",
+            notes: "Notes", saveNotes: "Save Notes",
+            achievementWarriorTitle: "Warrior Spirit", achievementWarriorDesc: "10 day workout streak",
+            achievementHardWorkerTitle: "Hard Worker", achievementHardWorkerDesc: "8 hours of total training",
+            achievementProFighterTitle: "Pro Fighter", achievementProFighterDesc: "Complete a 12-round session",
             fightTimerTitle: "Fight Timer", chooseTimer: "Choose Timer",
-            standardPresets: "Standard Presets", customProfiles: "Custom Profiles",
+            standardPresets: "Standard Presets",
+ customProfiles: "Custom Profiles",
             customizations: "Customizations", warmUp: "Warm-up", rounds: "Rounds",
             roundTime: "Round Time", rest: "Rest", cancel: "Cancel", done: "Done",
             newProfile: "New Profile", profileNameHint: "Profile name (e.g. Sambo)", save: "Save",
@@ -376,10 +406,10 @@ struct Translations {
             onboarding2Title: "Fight Timer", onboarding2Text: "Presets for Boxing, MMA, K1, Muay Thai and more. Just select and start.",
             onboarding3Title: "Interval Training", onboarding3Text: "Intense HIIT training for running, air bike, bag work and more. Fully customizable.",
             onboarding4Title: "Track Progress", onboarding4Text: "All workouts are saved. Follow your progress in History and Statistics.",
-            tabStopwatch: "Stopwatch", stopwatchTitle: "Stopwatch", stopwatchLap: "Lap",
+            stopwatchTitle: "Stopwatch", stopwatchLap: "Lap",
             stopwatchReset: "Reset", stopwatchStart: "Start", stopwatchStop: "Stop",
             stopwatchLaps: "Laps",
-            tabTodos: "Todos", todosTitle: "My Todos", todoAdd: "Add",
+            todosTitle: "My Todos", todoAdd: "Add",
             todoPlaceholder: "New todo...", todoOpen: "Open", todoDone: "Done",
             todoEmpty: "No Todos", todoEmptyDesc: "Add your first todo",
             todoNotifications: "Todo Reminders",
@@ -407,7 +437,14 @@ struct Translations {
             phaseFinished: "!انتهى", phaseWork: "تمرين", phaseRound: "جولة",
             tabFightTimer: "مؤقت القتال", tabIntervals: "فترات",
             tabHistory: "السجل", tabStats: "إحصاءات", tabSettings: "إعدادات",
-            fightTimerTitle: "مؤقت القتال", chooseTimer: "اختر المؤقت",
+            tabStopwatch: "ساعة الإيقاف", tabTodos: "المهام",
+            heatmapTitle: "مخطط التدريب", achievementsTitle: "الإنجازات",
+            notes: "ملاحظات", saveNotes: "حفظ الملاحظات",
+            achievementWarriorTitle: "روح المحارب", achievementWarriorDesc: "سلسلة تمارين لمدة 10 أيام",
+            achievementHardWorkerTitle: "عامل مجد", achievementHardWorkerDesc: "8 ساعات من التدريب الإجمالي",
+            achievementProFighterTitle: "مقاتل محترف", achievementProFighterDesc: "أكمل جلسة من 12 جولة",
+            fightTimerTitle: "مؤقت القتال",
+ chooseTimer: "اختر المؤقت",
             standardPresets: "الإعدادات الافتراضية", customProfiles: "ملفات مخصصة",
             customizations: "تخصيصات", warmUp: "إحماء", rounds: "جولات",
             roundTime: "وقت الجولة", rest: "راحة", cancel: "إلغاء", done: "تم",
@@ -442,10 +479,10 @@ struct Translations {
             onboarding2Title: "مؤقت القتال", onboarding2Text: "إعدادات مسبقة للملاكمة وMMA وK1 والمواي تاي والمزيد.",
             onboarding3Title: "تدريب الفترات", onboarding3Text: "تدريب HIIT مكثف للجري والدراجة الهوائية وكيس الملاكمة والمزيد.",
             onboarding4Title: "تتبع التقدم", onboarding4Text: "يتم حفظ جميع التمارين. تابع تقدمك في السجل والإحصاءات.",
-            tabStopwatch: "الساعة", stopwatchTitle: "ساعة إيقاف", stopwatchLap: "دورة",
+            stopwatchTitle: "ساعة إيقاف", stopwatchLap: "دورة",
             stopwatchReset: "إعادة", stopwatchStart: "ابدأ", stopwatchStop: "وقف",
             stopwatchLaps: "الدورات",
-            tabTodos: "مهام", todosTitle: "مهامي", todoAdd: "إضافة",
+            todosTitle: "مهامي", todoAdd: "إضافة",
             todoPlaceholder: "مهمة جديدة...", todoOpen: "مفتوح", todoDone: "منجز",
             todoEmpty: "لا توجد مهام", todoEmptyDesc: "أضف مهمتك الأولى",
             todoNotifications: "تذكيرات المهام",
@@ -473,7 +510,14 @@ struct Translations {
             phaseFinished: "¡LISTO!", phaseWork: "TRABAJO", phaseRound: "RONDA",
             tabFightTimer: "Cronómetro", tabIntervals: "Intervalos",
             tabHistory: "Historial", tabStats: "Estadísticas", tabSettings: "Ajustes",
-            fightTimerTitle: "Cronómetro", chooseTimer: "Elegir Cronómetro",
+            tabStopwatch: "Cronómetro", tabTodos: "Tareas",
+            heatmapTitle: "Mapa de calor", achievementsTitle: "Logros",
+            notes: "Notas", saveNotes: "Guardar notas",
+            achievementWarriorTitle: "Espíritu Guerrero", achievementWarriorDesc: "Racha de 10 días de entrenamiento",
+            achievementHardWorkerTitle: "Trabajador Incansable", achievementHardWorkerDesc: "8 horas de entrenamiento total",
+            achievementProFighterTitle: "Luchador Pro", achievementProFighterDesc: "Completar una sesión de 12 rondas",
+            fightTimerTitle: "Cronómetro",
+ chooseTimer: "Elegir Cronómetro",
             standardPresets: "Ajustes Estándar", customProfiles: "Perfiles Personalizados",
             customizations: "Personalizaciones", warmUp: "Calentamiento", rounds: "Rondas",
             roundTime: "Tiempo de Ronda", rest: "Descanso", cancel: "Cancelar", done: "Listo",
@@ -508,10 +552,10 @@ struct Translations {
             onboarding2Title: "Cronómetro", onboarding2Text: "Ajustes para Boxeo, MMA, K1, Muay Thai y más. Solo selecciona y empieza.",
             onboarding3Title: "Entrenamiento por Intervalos", onboarding3Text: "Entrenamiento HIIT intenso para correr, bicicleta y saco de boxeo. Totalmente personalizable.",
             onboarding4Title: "Seguir el Progreso", onboarding4Text: "Todos los entrenamientos se guardan. Sigue tu progreso en Historial y Estadísticas.",
-            tabStopwatch: "Cronómetro", stopwatchTitle: "Cronómetro", stopwatchLap: "Vuelta",
+            stopwatchTitle: "Cronómetro", stopwatchLap: "Vuelta",
             stopwatchReset: "Reiniciar", stopwatchStart: "Iniciar", stopwatchStop: "Parar",
             stopwatchLaps: "Vueltas",
-            tabTodos: "Tareas", todosTitle: "Mis Tareas", todoAdd: "Añadir",
+            todosTitle: "Mis Tareas", todoAdd: "Añadir",
             todoPlaceholder: "Nueva tarea...", todoOpen: "Pendiente", todoDone: "Hecho",
             todoEmpty: "Sin tareas", todoEmptyDesc: "Añade tu primera tarea",
             todoNotifications: "Recordatorios de tareas",
@@ -539,7 +583,14 @@ struct Translations {
             phaseFinished: "TERMINÉ!", phaseWork: "TRAVAIL", phaseRound: "ROUND",
             tabFightTimer: "Chrono Combat", tabIntervals: "Intervalles",
             tabHistory: "Historique", tabStats: "Statistiques", tabSettings: "Réglages",
-            fightTimerTitle: "Chrono Combat", chooseTimer: "Choisir le Chrono",
+            tabStopwatch: "Chronomètre", tabTodos: "Tâches",
+            heatmapTitle: "Carte thermique", achievementsTitle: "Succès",
+            notes: "Notes", saveNotes: "Enregistrer les notes",
+            achievementWarriorTitle: "Esprit Guerrier", achievementWarriorDesc: "Série de 10 jours d'entraînement",
+            achievementHardWorkerTitle: "Travailleur Acharné", achievementHardWorkerDesc: "8 heures d'entraînement total",
+            achievementProFighterTitle: "Combattant Pro", achievementProFighterDesc: "Terminer une séance de 12 rounds",
+            fightTimerTitle: "Chrono Combat",
+ chooseTimer: "Choisir le Chrono",
             standardPresets: "Préréglages Standards", customProfiles: "Profils Personnalisés",
             customizations: "Personnalisations", warmUp: "Échauffement", rounds: "Rounds",
             roundTime: "Durée du Round", rest: "Repos", cancel: "Annuler", done: "Terminer",
@@ -574,10 +625,10 @@ struct Translations {
             onboarding2Title: "Chrono Combat", onboarding2Text: "Préréglages pour Boxe, MMA, K1, Muay Thai et plus. Sélectionnez et démarrez.",
             onboarding3Title: "Entraînement Intervalles", onboarding3Text: "Entraînement HIIT intense pour course, vélo et sac de frappe. Entièrement personnalisable.",
             onboarding4Title: "Suivre la Progression", onboarding4Text: "Tous les entraînements sont sauvegardés. Suivez votre progression dans Historique et Statistiques.",
-            tabStopwatch: "Chronomètre", stopwatchTitle: "Chronomètre", stopwatchLap: "Tour",
+            stopwatchTitle: "Chronomètre", stopwatchLap: "Tour",
             stopwatchReset: "Réinitialiser", stopwatchStart: "Démarrer", stopwatchStop: "Arrêter",
             stopwatchLaps: "Tours",
-            tabTodos: "Tâches", todosTitle: "Mes Tâches", todoAdd: "Ajouter",
+            todosTitle: "Mes Tâches", todoAdd: "Ajouter",
             todoPlaceholder: "Nouvelle tâche...", todoOpen: "En cours", todoDone: "Terminé",
             todoEmpty: "Aucune tâche", todoEmptyDesc: "Ajoutez votre première tâche",
             todoNotifications: "Rappels de tâches",
@@ -605,7 +656,14 @@ struct Translations {
             phaseFinished: "ГОТОВО!", phaseWork: "РАБОТА", phaseRound: "РАУНД",
             tabFightTimer: "Таймер", tabIntervals: "Интервалы",
             tabHistory: "История", tabStats: "Статистика", tabSettings: "Настройки",
-            fightTimerTitle: "Таймер Боя", chooseTimer: "Выбрать Таймер",
+            tabStopwatch: "Секундомер", tabTodos: "Задачи",
+            heatmapTitle: "Активность", achievementsTitle: "Достижения",
+            notes: "Заметки", saveNotes: "Сохранить заметки",
+            achievementWarriorTitle: "Дух воина", achievementWarriorDesc: "10-дневная серия тренировок",
+            achievementHardWorkerTitle: "Трудоголик", achievementHardWorkerDesc: "8 часов тренировок всего",
+            achievementProFighterTitle: "Профи", achievementProFighterDesc: "Завершить 12-раундовую сессию",
+            fightTimerTitle: "Таймер Боя",
+ chooseTimer: "Выбрать Таймер",
             standardPresets: "Стандартные Пресеты", customProfiles: "Свои Профили",
             customizations: "Настройки", warmUp: "Разминка", rounds: "Раунды",
             roundTime: "Время Раунда", rest: "Отдых", cancel: "Отмена", done: "Готово",
@@ -640,10 +698,10 @@ struct Translations {
             onboarding2Title: "Таймер Боя", onboarding2Text: "Пресеты для бокса, MMA, K1, муай-тай и других видов спорта.",
             onboarding3Title: "Интервальная Тренировка", onboarding3Text: "Интенсивный HIIT для бега, велотренажёра, груши и многого другого.",
             onboarding4Title: "Отслеживай Прогресс", onboarding4Text: "Все тренировки сохраняются. Следи за прогрессом в истории и статистике.",
-            tabStopwatch: "Секундомер", stopwatchTitle: "Секундомер", stopwatchLap: "Круг",
+            stopwatchTitle: "Секундомер", stopwatchLap: "Круг",
             stopwatchReset: "Сброс", stopwatchStart: "Старт", stopwatchStop: "Стоп",
             stopwatchLaps: "Круги",
-            tabTodos: "Задачи", todosTitle: "Мои задачи", todoAdd: "Добавить",
+            todosTitle: "Мои задачи", todoAdd: "Добавить",
             todoPlaceholder: "Новая задача...", todoOpen: "Открытые", todoDone: "Выполнено",
             todoEmpty: "Нет задач", todoEmptyDesc: "Добавьте первую задачу",
             todoNotifications: "Напоминания о задачах",
@@ -664,6 +722,79 @@ struct Translations {
             privacyS4Title: "Разрешения",
             privacyS4Text: "Только Live Activity (таймер на экране блокировки, опционально). Никаких других разрешений.",
             privacyOpenBrowser: "Открыть полную версию в браузере"
+        ),
+
+        .portuguese: Translations(
+            phaseWarmUp: "AQUECIMENTO", phaseRest: "DESCANSO", phaseCoolDown: "DESACELERAÇÃO",
+            phaseFinished: "CONCLUÍDO!", phaseWork: "TRABALHO", phaseRound: "ROUND",
+            tabFightTimer: "Timer de Luta", tabIntervals: "Intervalos",
+            tabHistory: "Histórico", tabStats: "Estatísticas", tabSettings: "Ajustes",
+            tabStopwatch: "Cronômetro", tabTodos: "Tarefas",
+            heatmapTitle: "Mapa de Calor", achievementsTitle: "Conquistas",
+            notes: "Notas", saveNotes: "Salvar Notas",
+            achievementWarriorTitle: "Espírito Guerreiro", achievementWarriorDesc: "Sequência de 10 dias de treino",
+            achievementHardWorkerTitle: "Trabalhador Árduo", achievementHardWorkerDesc: "8 horas de treino total",
+            achievementProFighterTitle: "Lutador Pro", achievementProFighterDesc: "Concluir uma sessão de 12 rounds",
+            fightTimerTitle: "Timer de Luta",
+ chooseTimer: "Escolher Timer",
+            standardPresets: "Predefinições Padrão", customProfiles: "Perfis Personalizados",
+            customizations: "Personalizações", warmUp: "Aquecimento", rounds: "Rounds",
+            roundTime: "Tempo de Round", rest: "Descanso", cancel: "Cancelar", done: "Concluído",
+            newProfile: "Novo Perfil", profileNameHint: "Nome do perfil (ex: Sambo)", save: "Salvar",
+            intervalTitle: "Treino de Intervalos", chooseTraining: "Escolha seu treino",
+            preset: "Predefinição", customSetting: "Personalizado", device: "Equipamento", level: "Nível",
+            yourTraining: "Seu treino:", intervals: "Intervalos", coolDown: "Desaceleração",
+            totalApprox: "Total: aprox.", startTraining: "Iniciar Treino", work: "Trabalho",
+            back: "Voltar", saveWorkout: "Salvar Treino", saved: "Salvo!",
+            sportBoxen: "Boxe", sportRingen: "Luta Livre",
+            deviceRunning: "🏃 Corrida ao ar livre", deviceTreadmill: "🏋️ Esteira",
+            deviceAirBike: "🚴 Bicicleta Air", deviceBagWork: "🥊 Saco de pancadas",
+            levelBeginner: "Iniciante", levelIntermediate: "Intermediário", levelAdvanced: "Avançado",
+            historyTitle: "Histórico", noWorkouts: "Sem Treinos",
+            noWorkoutsDesc: "Seus treinos concluídos aparecerão aqui",
+            deleteAll: "Excluir Tudo", confirmDeleteAll: "Excluir todos os treinos?",
+            workoutDetails: "Detalhes do Treino", general: "Geral", sport: "Esporte",
+            mode: "Modo", date: "Data", duration: "Duração",
+            fightTimerDetails: "Detalhes do Timer de Luta", intervalDetails: "Detalhes de Intervalos",
+            statsTitle: "Estatísticas", thisWeek: "Esta Semana", totalTime: "Tempo Total",
+            favoriteSport: "Esporte Favorito", streak: "Sequência", workoutsLabel: "Treinos",
+            settingsTitle: "Ajustes", audioHaptic: "Áudio e Háptica",
+            soundEnabled: "Som ativado", vibrationEnabled: "Vibração ativada",
+            warningEnabled: "Som de aviso 10 seg.",
+            language: "Idioma", about: "Sobre", version: "Versão",
+            developer: "Desenvolvedor", presetsInfo: "Informação de Presets", ok: "OK",
+            feedbackButton: "Enviar feedback", rateApp: "Avaliar app",
+            privacyPolicy: "Política de Privacidade",
+            onboardingNext: "Próximo", onboardingStart: "Vamos lá!",
+            onboardingSkip: "Pular",
+            onboarding1Title: "Bem-vindo!", onboarding1Text: "Seu timer profissional de esportes de combate para treino e competição.",
+            onboarding2Title: "Timer de Luta", onboarding2Text: "Predefinições para Boxe, MMA, K1, Muay Thai e mais. Basta selecionar e começar.",
+            onboarding3Title: "Treino de Intervalos", onboarding3Text: "Treino HIIT intenso para corrida, bicicleta, saco de pancadas e mais. Totalmente personalizável.",
+            onboarding4Title: "Acompanhar Progresso", onboarding4Text: "Todos os treinos são salvos. Acompanhe seu progresso no Histórico e Estatísticas.",
+            stopwatchTitle: "Cronômetro", stopwatchLap: "Volta",
+            stopwatchReset: "Resetar", stopwatchStart: "Iniciar", stopwatchStop: "Parar",
+            stopwatchLaps: "Voltas",
+            todosTitle: "Minhas Tarefas", todoAdd: "Adicionar",
+            todoPlaceholder: "Nova tarefa...", todoOpen: "Aberto", todoDone: "Concluído",
+            todoEmpty: "Sem tarefas", todoEmptyDesc: "Adicione sua primeira tarefa",
+            todoNotifications: "Lembretes de tarefas",
+            donationTitle: "Apoiar o Desenvolvedor",
+            donationSubtitle: "Se você gosta do app, eu agradeceria seu apoio 🙏",
+            donationSupport: "Apoiar", donationThankYou: "Muito obrigado! 🙏",
+            donationUnavailable: "Produtos não disponíveis.\nVerifique sua conexão com a internet.",
+            loading: "Carregando...", retry: "Tentar Novamente",
+            privacyNavTitle: "Política de Privacidade",
+            privacyDate: "Política de Privacidade · Fevereiro 2026",
+            privacySummary: "Este aplicativo não armazena dados pessoais, não envia dados para servidores e não utiliza rastreadores ou publicidade.",
+            privacyS1Title: "Quais dados são armazenados?",
+            privacyS1Text: "Apenas localmente no seu dispositivo:\n• Histórico de treinos (data, duração, esporte)\n• Ajustes do app (idioma, som, vibração)\n\nEstes dados nunca saem do seu dispositivo.",
+            privacyS2Title: "Os dados são transmitidos?",
+            privacyS2Text: "Não. O aplicativo não envia dados para servidores, não utiliza ferramentas de análise e não requer conexão com a internet.",
+            privacyS3Title: "Compras no App",
+            privacyS3Text: "Doações opcionais são processadas inteiramente através da Apple In-App Purchase. Não temos acesso aos dados de pagamento.",
+            privacyS4Title: "Permissões",
+            privacyS4Text: "Apenas Live Activity (timer na tela de bloqueio, opcional). Sem outras permissões.",
+            privacyOpenBrowser: "Abrir versão completa no navegador"
         )
     ]
 }

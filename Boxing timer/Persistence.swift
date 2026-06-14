@@ -25,25 +25,17 @@ final class PersistenceController {
         }
         container.persistentStoreDescriptions.first?.shouldMigrateStoreAutomatically = true
         container.persistentStoreDescriptions.first?.shouldInferMappingModelAutomatically = true
-        container.persistentStoreDescriptions.first?.shouldAddStoreAsynchronously = true
+        container.persistentStoreDescriptions.first?.shouldAddStoreAsynchronously = false
         
         container.viewContext.automaticallyMergesChangesFromParent = true
-        
-        // Load stores asynchronously on a background queue
-        Task.detached {
-            await self.loadStores()
-        }
-    }
-    
-    private func loadStores() async {
-        await withCheckedContinuation { continuation in
-            container.loadPersistentStores { _, error in
-                if let error = error as NSError? {
+
+        container.loadPersistentStores { _, error in
+            if let error = error as NSError? {
 #if DEBUG
-                    fatalError("Unresolved error \(error), \(error.userInfo)")
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+#else
+                print("Core Data store konnte nicht geladen werden: \(error), \(error.userInfo)")
 #endif
-                }
-                continuation.resume()
             }
         }
     }

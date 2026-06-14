@@ -70,8 +70,7 @@ struct TodoView: View {
                                 }
                                 .onDelete { offsets in
                                     let ids = offsets.map { openTodos[$0].id }
-                                    todoManager.todos.removeAll { ids.contains($0.id) }
-                                    save()
+                                    todoManager.delete(ids: ids)
                                 }
                             }
                         }
@@ -85,8 +84,7 @@ struct TodoView: View {
                                 }
                                 .onDelete { offsets in
                                     let ids = offsets.map { doneTodos[$0].id }
-                                    todoManager.todos.removeAll { ids.contains($0.id) }
-                                    save()
+                                    todoManager.delete(ids: ids)
                                 }
                             }
                         }
@@ -103,12 +101,6 @@ struct TodoView: View {
         todoManager.add(newTitle)
         newTitle = ""
         fieldFocused = false
-    }
-
-    private func save() {
-        if let data = try? JSONEncoder().encode(todoManager.todos) {
-            UserDefaults.standard.set(data, forKey: "todos")
-        }
     }
 }
 

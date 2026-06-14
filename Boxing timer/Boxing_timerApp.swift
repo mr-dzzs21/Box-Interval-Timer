@@ -17,7 +17,6 @@ struct Boxing_timerApp: App {
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingCompleted")
     @Environment(\.scenePhase) private var scenePhase
     let persistenceController = PersistenceController.shared
-
     var body: some Scene {
         WindowGroup {
             MainTabView()

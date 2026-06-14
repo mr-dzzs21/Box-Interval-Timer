@@ -39,7 +39,7 @@ struct BoxingTimerLiveActivity: Widget {
 
                 DynamicIslandExpandedRegion(.trailing) {
                     if context.state.isRunning {
-                        Text(timerInterval: context.state.phaseEndDate...context.state.phaseEndDate,
+                        Text(timerInterval: min(Date.now, context.state.phaseEndDate)...context.state.phaseEndDate,
                              countsDown: true)
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .monospacedDigit()
@@ -78,7 +78,7 @@ struct BoxingTimerLiveActivity: Widget {
             } compactTrailing: {
                 // Timer rechts (kompakt)
                 if context.state.isRunning {
-                    Text(timerInterval: Date.now...context.state.phaseEndDate,
+                    Text(timerInterval: min(Date.now, context.state.phaseEndDate)...context.state.phaseEndDate,
                          countsDown: true)
                         .font(.system(.caption, design: .rounded).bold())
                         .monospacedDigit()
@@ -141,7 +141,7 @@ struct LockScreenView: View {
 
             // Timer - zählt automatisch runter wenn running
             if context.state.isRunning {
-                Text(timerInterval: Date.now...context.state.phaseEndDate,
+                Text(timerInterval: min(Date.now, context.state.phaseEndDate)...context.state.phaseEndDate,
                      countsDown: true)
                     .font(.system(size: 52, weight: .bold, design: .rounded))
                     .monospacedDigit()

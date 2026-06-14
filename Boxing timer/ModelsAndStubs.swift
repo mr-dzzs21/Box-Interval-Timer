@@ -134,9 +134,25 @@ class SoundManager {
     // "shared" = Singleton: es gibt nur eine Instanz in der ganzen App
     static let shared = SoundManager()
 
+    // Haupt-Player für Glocke (roundStart, roundEnd, workoutEnd)
+    private var player: AVAudioPlayer?
+    // Zweiter Player für Warning-Sound – läuft unabhängig vom Haupt-Player
+    private var warningPlayer: AVAudioPlayer?
+    // Sprachausgabe für Rundenansagen
+    private let speechSynthesizer = AVSpeechSynthesizer()
+
     init() {
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: .mixWithOthers)
-        try? AVAudioSession.sharedInstance().setActive(true)
+        configureAudioSession()
+    }
+
+    private func configureAudioSession() {
+        do {
+            // .duckOthers sorgt dafür, dass andere Audio-Quellen (Musik) leiser werden
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("AudioSession konnte nicht konfiguriert werden: \(error)")
+        }
     }
 
     enum SoundType {
@@ -145,11 +161,6 @@ class SoundManager {
         case workoutEnd
         case roundWarning  // 10 Sekunden vor Rundenende
     }
-
-    // Haupt-Player für Glocke (roundStart, roundEnd, workoutEnd)
-    private var player: AVAudioPlayer?
-    // Zweiter Player für Warning-Sound – läuft unabhängig vom Haupt-Player
-    private var warningPlayer: AVAudioPlayer?
 
     func playHaptic(type: SoundType, vibrationEnabled: Bool) {
         guard vibrationEnabled else { return }
@@ -219,6 +230,22 @@ class SoundManager {
         } catch {
             print("Sound konnte nicht abgespielt werden: \(error)")
         }
+    }
+
+    func speakRound(_ round: Int, soundEnabled: Bool) {
+        guard soundEnabled else { return }
+        
+        let utterance = AVSpeechUtterance(string: "Round \(round)")
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        utterance.rate = 0.5
+        utterance.volume = 1.0
+        
+        // Falls gerade etwas gesprochen wird, abbrechen
+        if speechSynthesizer.isSpeaking {
+            speechSynthesizer.stopSpeaking(at: .immediate)
+        }
+        
+        speechSynthesizer.speak(utterance)
     }
 }
 

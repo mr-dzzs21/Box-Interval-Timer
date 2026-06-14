@@ -12,12 +12,15 @@ import Combine
 class AppPromptManager: ObservableObject {
 
     @Published var showDonationPrompt = false
+    @Published var completedWorkoutsCount: Int
 
     private let firstLaunchKey       = "firstLaunchDate"
     private let donationShownKey     = "donationPromptShown"
     private let workoutCountKey      = "completedWorkoutsCount"
 
     init() {
+        completedWorkoutsCount = UserDefaults.standard.integer(forKey: workoutCountKey)
+
         // Ersten Start-Datum speichern
         if UserDefaults.standard.object(forKey: firstLaunchKey) == nil {
             UserDefaults.standard.set(Date(), forKey: firstLaunchKey)
@@ -26,13 +29,8 @@ class AppPromptManager: ObservableObject {
 
     // Wird aufgerufen wenn ein Workout gespeichert wird
     func recordWorkoutCompleted() {
-        let count = UserDefaults.standard.integer(forKey: workoutCountKey) + 1
-        UserDefaults.standard.set(count, forKey: workoutCountKey)
-    }
-
-    // Gibt aktuelle Workout-Anzahl zurück (für Review-Trigger)
-    var completedWorkoutsCount: Int {
-        UserDefaults.standard.integer(forKey: workoutCountKey)
+        completedWorkoutsCount += 1
+        UserDefaults.standard.set(completedWorkoutsCount, forKey: workoutCountKey)
     }
 
     // Nach 30 Tagen Donation-Popup zeigen (nur einmal)

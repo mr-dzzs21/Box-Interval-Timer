@@ -24,61 +24,93 @@ class FightTimerViewModel: ObservableObject {
     @Published var status: TimerStatus = .idle
     @Published var timeRemaining: Int = 0
     @Published var currentRound: Int = 0
+    @Published var hasSavedCurrentWorkout = false
+    @Published var saveErrorMessage: String?
 
+    private var engine: TimerSessionEngine
     private var timer: Timer?
     private let soundManager = SoundManager.shared
-    private var startTime: Date?
+    private var workoutStartTime: Date?
     private var totalElapsedSeconds: Int = 0
+    private var lastSnapshot: TimerSessionSnapshot?
+    private var warnedSegmentIndex: Int?
+    private var savedWorkoutObjectID: NSManagedObjectID?
 
     // Live Activity - gespeichert als Any? weil Activity<T> generisch ist
     private var liveActivity: Activity<BoxingTimerAttributes>?
 
     var settings: UserSettings?
+    var historyContext: NSManagedObjectContext?
+    var onWorkoutSaved: (() -> Void)?
     // Sprache wird von der View gesetzt, damit phaseText übersetzt wird
     @Published var language: AppLanguage = .german
 
     init(preset: FightPreset? = nil) {
         let resolved = preset ?? FightPreset.defaultPresets[0]
         self.currentPreset = resolved
-        self.timeRemaining = resolved.warmupSeconds
+        self.engine = TimerSessionEngine.fight(preset: resolved)
+        let snapshot = engine.snapshot(at: Date())
+        self.phase = snapshot.phase
+        self.timeRemaining = snapshot.timeRemaining
+        self.currentRound = snapshot.currentStep
+        self.lastSnapshot = snapshot
     }
 
     func start() {
-        if status == .idle {
-            reset()
-            startTime = Date()
+        let now = Date()
+        if status == .paused && phase != .finished {
+            resume()
+            return
         }
+        
+        prepareNewSession(at: now)
+        engine.start(at: now)
         status = .running
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         startLiveActivity()
     }
 
     func pause() {
+        guard status == .running else { return }
+        let now = Date()
+        engine.pause(at: now)
         status = .paused
-        timer?.invalidate()
-        timer = nil
+        stopTimer()
         UIApplication.shared.isIdleTimerDisabled = false
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         updateLiveActivity(isRunning: false)
     }
 
     func resume() {
+        if phase == .finished {
+            start()
+            return
+        }
+        guard status == .paused else { return }
+        let now = Date()
+        engine.start(at: now)
         status = .running
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         updateLiveActivity(isRunning: true)
     }
 
     func reset() {
-        timer?.invalidate()
-        timer = nil
+        stopTimer()
         status = .idle
-        phase = .warmup
-        currentRound = 0
-        timeRemaining = currentPreset.warmupSeconds
-        totalElapsedSeconds = 0
-        startTime = nil
         UIApplication.shared.isIdleTimerDisabled = false
+        engine = TimerSessionEngine.fight(preset: currentPreset)
+        engine.reset()
+        workoutStartTime = nil
+        totalElapsedSeconds = 0
+        warnedSegmentIndex = nil
+        savedWorkoutObjectID = nil
+        hasSavedCurrentWorkout = false
+        saveErrorMessage = nil
+        applySnapshot(engine.snapshot(at: Date()), now: Date(), allowEffects: false)
         endLiveActivity()
     }
 
@@ -94,6 +126,10 @@ class FightTimerViewModel: ObservableObject {
 
     private func startLiveActivity() {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        if liveActivity != nil {
+            updateLiveActivity(isRunning: status == .running)
+            return
+        }
         let attributes = BoxingTimerAttributes(sportName: currentPreset.name)
         let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
         let state = BoxingTimerAttributes.ContentState(
@@ -132,7 +168,16 @@ class FightTimerViewModel: ObservableObject {
     }
 
     func skip() {
-        advancePhase()
+        let now = Date()
+        let previous = lastSnapshot ?? engine.snapshot(at: now)
+        engine.skip(at: now)
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: status != .idle, previousSnapshot: previous)
+    }
+
+    func refreshFromClock() {
+        guard status == .running else { return }
+        let now = Date()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true)
     }
 
     func updatePreset(_ preset: FightPreset) {
@@ -140,11 +185,21 @@ class FightTimerViewModel: ObservableObject {
         reset()
     }
     
-    func saveWorkoutToHistory(context: NSManagedObjectContext) {
-        guard let startTime = startTime else { return }
-        let workout = WorkoutHistoryEntity(context: context)
-        workout.id = UUID()
-        workout.date = startTime
+    @discardableResult
+    func saveWorkoutToHistory(context: NSManagedObjectContext, allowUpdate: Bool = false) -> Bool {
+        guard let startTime = workoutStartTime, totalElapsedSeconds > 0 else { return false }
+        if hasSavedCurrentWorkout && !allowUpdate { return false }
+
+        let isFirstSave = savedWorkoutObjectID == nil
+        let workout: WorkoutHistoryEntity
+        if let objectID = savedWorkoutObjectID,
+           let existing = try? context.existingObject(with: objectID) as? WorkoutHistoryEntity {
+            workout = existing
+        } else {
+            workout = WorkoutHistoryEntity(context: context)
+            workout.id = UUID()
+            workout.date = startTime
+        }
         workout.mode = WorkoutMode.fightTimer.rawValue
         workout.sportName = currentPreset.name
         workout.totalDuration = Int32(totalElapsedSeconds)
@@ -152,10 +207,25 @@ class FightTimerViewModel: ObservableObject {
         workout.roundSeconds = Int16(currentPreset.roundSeconds)
         workout.restSeconds = Int16(currentPreset.restSeconds)
         workout.warmupSeconds = Int16(currentPreset.warmupSeconds)
-        try? context.save()
+        do {
+            try context.save()
+            savedWorkoutObjectID = workout.objectID
+            hasSavedCurrentWorkout = true
+            saveErrorMessage = nil
+            if isFirstSave { onWorkoutSaved?() }
+            return true
+        } catch {
+            context.rollback()
+            saveErrorMessage = error.localizedDescription
+#if DEBUG
+            print("Workout konnte nicht gespeichert werden: \(error)")
+#endif
+            return false
+        }
     }
     
     private func startTimer() {
+        stopTimer()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.tick()
@@ -165,61 +235,98 @@ class FightTimerViewModel: ObservableObject {
             RunLoop.current.add(timer, forMode: .common)
         }
     }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
     
     private func tick() {
-        totalElapsedSeconds += 1
-        guard timeRemaining > 0 else {
-            advancePhase()
-            return
-        }
-        timeRemaining -= 1
+        let now = Date()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true)
+    }
 
-        // 10-Sekunden-Warnung vor Rundenende (nur wenn aktiviert)
-        if phase == .round && timeRemaining == 10 && (settings?.warningEnabled ?? true) {
-            let soundEnabled = settings?.soundEnabled ?? true
-            let vibrationEnabled = settings?.vibrationEnabled ?? true
-            soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
-            soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+    private func prepareNewSession(at date: Date) {
+        stopTimer()
+        endLiveActivity()
+        engine = TimerSessionEngine.fight(preset: currentPreset)
+        engine.reset()
+        workoutStartTime = date
+        totalElapsedSeconds = 0
+        warnedSegmentIndex = nil
+        savedWorkoutObjectID = nil
+        hasSavedCurrentWorkout = false
+        saveErrorMessage = nil
+        lastSnapshot = engine.snapshot(at: date)
+    }
+
+    private func applySnapshot(_ snapshot: TimerSessionSnapshot, now: Date, allowEffects: Bool, previousSnapshot: TimerSessionSnapshot? = nil) {
+        let previous = previousSnapshot ?? lastSnapshot
+        let segmentChanged = previous?.segmentIndex != snapshot.segmentIndex
+
+        phase = snapshot.phase
+        currentRound = snapshot.currentStep
+        timeRemaining = snapshot.timeRemaining
+        totalElapsedSeconds = snapshot.elapsedSeconds
+
+        if allowEffects {
+            playTransitionEffects(from: previous, to: snapshot)
+            playWarningIfNeeded(from: previous, to: snapshot)
+        }
+
+        lastSnapshot = snapshot
+
+        if snapshot.isFinished {
+            completeWorkout(now: now)
+        } else if segmentChanged && liveActivity != nil {
+            updateLiveActivity(isRunning: status == .running)
         }
     }
 
-    private func advancePhase() {
+    private func playTransitionEffects(from previous: TimerSessionSnapshot?, to snapshot: TimerSessionSnapshot) {
+        guard let previous, previous.segmentIndex != snapshot.segmentIndex else { return }
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true
 
-        switch phase {
-        case .warmup:
-            phase = .round
-            currentRound = 1
-            timeRemaining = currentPreset.roundSeconds
-            soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
-            soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
-            updateLiveActivity(isRunning: true)
+        switch snapshot.phase {
         case .round:
-            if currentRound < currentPreset.rounds {
-                phase = .rest
-                timeRemaining = currentPreset.restSeconds
-                soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
-                soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
-                updateLiveActivity(isRunning: true)
-            } else {
-                phase = .finished
-                timeRemaining = 0
-                soundManager.playSound(type: .workoutEnd, soundEnabled: soundEnabled)
-                soundManager.playHaptic(type: .workoutEnd, vibrationEnabled: vibrationEnabled)
-                endLiveActivity()
-                pause()
-            }
-        case .rest:
-            currentRound += 1
-            phase = .round
-            timeRemaining = currentPreset.roundSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
-            updateLiveActivity(isRunning: true)
-        case .cooldown, .finished:
-            endLiveActivity()
-            pause()
+            // Sprachansage für die neue Runde
+            soundManager.speakRound(snapshot.currentStep, soundEnabled: soundEnabled)
+        case .rest, .cooldown:
+            soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
+        case .finished:
+            soundManager.playSound(type: .workoutEnd, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .workoutEnd, vibrationEnabled: vibrationEnabled)
+        case .warmup:
+            break
+        }
+    }
+
+    private func playWarningIfNeeded(from previous: TimerSessionSnapshot?, to snapshot: TimerSessionSnapshot) {
+        guard snapshot.phase == .round, settings?.warningEnabled ?? true else { return }
+        guard warnedSegmentIndex != snapshot.segmentIndex else { return }
+        guard let previous, previous.segmentIndex == snapshot.segmentIndex else { return }
+        guard previous.timeRemaining > 10, snapshot.timeRemaining <= 10 else { return }
+
+        let soundEnabled = settings?.soundEnabled ?? true
+        let vibrationEnabled = settings?.vibrationEnabled ?? true
+        warnedSegmentIndex = snapshot.segmentIndex
+        soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
+        soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+    }
+
+    private func completeWorkout(now: Date) {
+        guard status == .running else { return }
+        engine.pause(at: now)
+        status = .paused
+        stopTimer()
+        UIApplication.shared.isIdleTimerDisabled = false
+        endLiveActivity()
+        if let historyContext {
+            saveWorkoutToHistory(context: historyContext, allowUpdate: true)
         }
     }
 
@@ -248,16 +355,7 @@ class FightTimerViewModel: ObservableObject {
     }
     
     var progress: Double {
-        let total: Int
-        switch phase {
-        case .warmup: total = currentPreset.warmupSeconds
-        case .round: total = currentPreset.roundSeconds
-        case .rest: total = currentPreset.restSeconds
-        case .cooldown: total = 0
-        case .finished: return 1.0
-        }
-        guard total > 0 else { return 1.0 }
-        return 1.0 - Double(timeRemaining) / Double(total)
+        lastSnapshot?.progress ?? 0
     }
 }
 
@@ -268,63 +366,104 @@ class IntervalTimerViewModel: ObservableObject {
     @Published var status: TimerStatus = .idle
     @Published var timeRemaining: Int = 0
     @Published var currentInterval: Int = 0
+    @Published var hasSavedCurrentWorkout = false
+    @Published var saveErrorMessage: String?
 
+    private var engine: TimerSessionEngine
     private var timer: Timer?
     private let soundManager = SoundManager.shared
-    private var startTime: Date?
+    private var workoutStartTime: Date?
     private var totalElapsedSeconds: Int = 0
+    private var lastSnapshot: TimerSessionSnapshot?
+    private var warnedSegmentIndex: Int?
+    private var savedWorkoutObjectID: NSManagedObjectID?
 
     private var liveActivity: Activity<BoxingTimerAttributes>?
 
     var settings: UserSettings?
+    var historyContext: NSManagedObjectContext?
+    var onWorkoutSaved: (() -> Void)?
     @Published var language: AppLanguage = .german
 
     init(workout: IntervalWorkout) {
         self.workout = workout
-        self.timeRemaining = workout.warmupSeconds
+        self.engine = TimerSessionEngine.interval(workout: workout)
+        let snapshot = engine.snapshot(at: Date())
+        self.phase = snapshot.phase
+        self.timeRemaining = snapshot.timeRemaining
+        self.currentInterval = snapshot.currentStep
+        self.lastSnapshot = snapshot
     }
 
     func start() {
-        if status == .idle {
-            reset()
-            startTime = Date()
+        let now = Date()
+        if status == .paused && phase != .finished {
+            resume()
+            return
         }
+        
+        prepareNewSession(at: now)
+        engine.start(at: now)
         status = .running
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         startLiveActivity()
     }
 
     func pause() {
+        guard status == .running else { return }
+        let now = Date()
+        engine.pause(at: now)
         status = .paused
-        timer?.invalidate()
-        timer = nil
+        stopTimer()
         UIApplication.shared.isIdleTimerDisabled = false
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         updateLiveActivity(isRunning: false)
     }
 
     func resume() {
+        if phase == .finished {
+            start()
+            return
+        }
+        guard status == .paused else { return }
+        let now = Date()
+        engine.start(at: now)
         status = .running
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
         updateLiveActivity(isRunning: true)
     }
 
     func reset() {
-        timer?.invalidate()
-        timer = nil
+        stopTimer()
         status = .idle
-        phase = .warmup
-        currentInterval = 0
-        timeRemaining = workout.warmupSeconds
-        totalElapsedSeconds = 0
-        startTime = nil
         UIApplication.shared.isIdleTimerDisabled = false
+        engine = TimerSessionEngine.interval(workout: workout)
+        engine.reset()
+        workoutStartTime = nil
+        totalElapsedSeconds = 0
+        warnedSegmentIndex = nil
+        savedWorkoutObjectID = nil
+        hasSavedCurrentWorkout = false
+        saveErrorMessage = nil
+        applySnapshot(engine.snapshot(at: Date()), now: Date(), allowEffects: false)
         endLiveActivity()
     }
 
     func skip() {
-        advancePhase()
+        let now = Date()
+        let previous = lastSnapshot ?? engine.snapshot(at: now)
+        engine.skip(at: now)
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: status != .idle, previousSnapshot: previous)
+    }
+
+    func refreshFromClock() {
+        guard status == .running else { return }
+        let now = Date()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true)
     }
 
     func updateWorkout(_ w: IntervalWorkout) {
@@ -344,6 +483,10 @@ class IntervalTimerViewModel: ObservableObject {
 
     private func startLiveActivity() {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        if liveActivity != nil {
+            updateLiveActivity(isRunning: status == .running)
+            return
+        }
         let attributes = BoxingTimerAttributes(sportName: workout.displayName)
         let endDate = Date().addingTimeInterval(TimeInterval(timeRemaining))
         let state = BoxingTimerAttributes.ContentState(
@@ -381,11 +524,21 @@ class IntervalTimerViewModel: ObservableObject {
         liveActivity = nil
     }
 
-    func saveWorkoutToHistory(context: NSManagedObjectContext) {
-        guard let startTime = startTime else { return }
-        let w = WorkoutHistoryEntity(context: context)
-        w.id = UUID()
-        w.date = startTime
+    @discardableResult
+    func saveWorkoutToHistory(context: NSManagedObjectContext, allowUpdate: Bool = false) -> Bool {
+        guard let startTime = workoutStartTime, totalElapsedSeconds > 0 else { return false }
+        if hasSavedCurrentWorkout && !allowUpdate { return false }
+
+        let isFirstSave = savedWorkoutObjectID == nil
+        let w: WorkoutHistoryEntity
+        if let objectID = savedWorkoutObjectID,
+           let existing = try? context.existingObject(with: objectID) as? WorkoutHistoryEntity {
+            w = existing
+        } else {
+            w = WorkoutHistoryEntity(context: context)
+            w.id = UUID()
+            w.date = startTime
+        }
         w.mode = WorkoutMode.intervals.rawValue
         w.sportName = workout.displayName
         w.totalDuration = Int32(totalElapsedSeconds)
@@ -393,10 +546,25 @@ class IntervalTimerViewModel: ObservableObject {
         w.workSeconds = Int16(workout.workSeconds)
         w.restSeconds = Int16(workout.restSeconds)
         w.warmupSeconds = Int16(workout.warmupSeconds)
-        try? context.save()
+        do {
+            try context.save()
+            savedWorkoutObjectID = w.objectID
+            hasSavedCurrentWorkout = true
+            saveErrorMessage = nil
+            if isFirstSave { onWorkoutSaved?() }
+            return true
+        } catch {
+            context.rollback()
+            saveErrorMessage = error.localizedDescription
+#if DEBUG
+            print("Intervall-Workout konnte nicht gespeichert werden: \(error)")
+#endif
+            return false
+        }
     }
     
     private func startTimer() {
+        stopTimer()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.tick()
@@ -406,67 +574,98 @@ class IntervalTimerViewModel: ObservableObject {
             RunLoop.current.add(timer, forMode: .common)
         }
     }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+    }
     
     private func tick() {
-        totalElapsedSeconds += 1
-        guard timeRemaining > 0 else {
-            advancePhase()
-            return
-        }
-        timeRemaining -= 1
+        let now = Date()
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true)
+    }
 
-        // 10-Sekunden-Warnung vor Intervallende (nur wenn aktiviert)
-        if phase == .round && timeRemaining == 10 && (settings?.warningEnabled ?? true) {
-            let soundEnabled = settings?.soundEnabled ?? true
-            let vibrationEnabled = settings?.vibrationEnabled ?? true
-            soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
-            soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+    private func prepareNewSession(at date: Date) {
+        stopTimer()
+        endLiveActivity()
+        engine = TimerSessionEngine.interval(workout: workout)
+        engine.reset()
+        workoutStartTime = date
+        totalElapsedSeconds = 0
+        warnedSegmentIndex = nil
+        savedWorkoutObjectID = nil
+        hasSavedCurrentWorkout = false
+        saveErrorMessage = nil
+        lastSnapshot = engine.snapshot(at: date)
+    }
+
+    private func applySnapshot(_ snapshot: TimerSessionSnapshot, now: Date, allowEffects: Bool, previousSnapshot: TimerSessionSnapshot? = nil) {
+        let previous = previousSnapshot ?? lastSnapshot
+        let segmentChanged = previous?.segmentIndex != snapshot.segmentIndex
+
+        phase = snapshot.phase
+        currentInterval = snapshot.currentStep
+        timeRemaining = snapshot.timeRemaining
+        totalElapsedSeconds = snapshot.elapsedSeconds
+
+        if allowEffects {
+            playTransitionEffects(from: previous, to: snapshot)
+            playWarningIfNeeded(from: previous, to: snapshot)
+        }
+
+        lastSnapshot = snapshot
+
+        if snapshot.isFinished {
+            completeWorkout(now: now)
+        } else if segmentChanged && liveActivity != nil {
+            updateLiveActivity(isRunning: status == .running)
         }
     }
 
-    private func advancePhase() {
+    private func playTransitionEffects(from previous: TimerSessionSnapshot?, to snapshot: TimerSessionSnapshot) {
+        guard let previous, previous.segmentIndex != snapshot.segmentIndex else { return }
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true
 
-        switch phase {
-        case .warmup:
-            phase = .round
-            currentInterval = 1
-            timeRemaining = workout.workSeconds
-            soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
-            soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
-            updateLiveActivity(isRunning: true)
+        switch snapshot.phase {
         case .round:
-            if currentInterval < workout.intervals {
-                phase = .rest
-                timeRemaining = workout.restSeconds
-                soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
-                soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
-                updateLiveActivity(isRunning: true)
-            } else {
-                phase = .cooldown
-                timeRemaining = workout.cooldownSeconds
-                soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
-                soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
-                updateLiveActivity(isRunning: true)
-            }
-        case .rest:
-            currentInterval += 1
-            phase = .round
-            timeRemaining = workout.workSeconds
             soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
-            updateLiveActivity(isRunning: true)
-        case .cooldown:
-            phase = .finished
-            timeRemaining = 0
+            // Sprachansage für die neue Runde
+            soundManager.speakRound(snapshot.currentStep, soundEnabled: soundEnabled)
+        case .rest, .cooldown:
+            soundManager.playSound(type: .roundEnd, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundEnd, vibrationEnabled: vibrationEnabled)
+        case .finished:
             soundManager.playSound(type: .workoutEnd, soundEnabled: soundEnabled)
             soundManager.playHaptic(type: .workoutEnd, vibrationEnabled: vibrationEnabled)
-            endLiveActivity()
-            pause()
-        case .finished:
-            endLiveActivity()
-            pause()
+        case .warmup:
+            break
+        }
+    }
+
+    private func playWarningIfNeeded(from previous: TimerSessionSnapshot?, to snapshot: TimerSessionSnapshot) {
+        guard snapshot.phase == .round, settings?.warningEnabled ?? true else { return }
+        guard warnedSegmentIndex != snapshot.segmentIndex else { return }
+        guard let previous, previous.segmentIndex == snapshot.segmentIndex else { return }
+        guard previous.timeRemaining > 10, snapshot.timeRemaining <= 10 else { return }
+
+        let soundEnabled = settings?.soundEnabled ?? true
+        let vibrationEnabled = settings?.vibrationEnabled ?? true
+        warnedSegmentIndex = snapshot.segmentIndex
+        soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
+        soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
+    }
+
+    private func completeWorkout(now: Date) {
+        guard status == .running else { return }
+        engine.pause(at: now)
+        status = .paused
+        stopTimer()
+        UIApplication.shared.isIdleTimerDisabled = false
+        endLiveActivity()
+        if let historyContext {
+            saveWorkoutToHistory(context: historyContext, allowUpdate: true)
         }
     }
 
@@ -495,16 +694,7 @@ class IntervalTimerViewModel: ObservableObject {
     }
     
     var progress: Double {
-        let total: Int
-        switch phase {
-        case .warmup: total = workout.warmupSeconds
-        case .round: total = workout.workSeconds
-        case .rest: total = workout.restSeconds
-        case .cooldown: total = workout.cooldownSeconds
-        case .finished: return 1.0
-        }
-        guard total > 0 else { return 1.0 }
-        return 1.0 - Double(timeRemaining) / Double(total)
+        lastSnapshot?.progress ?? 0
     }
 }
 
@@ -542,6 +732,14 @@ class HistoryViewModel: ObservableObject {
     }
 }
 
+struct Achievement: Identifiable {
+    let id = UUID()
+    let title: String
+    let icon: String
+    let isUnlocked: Bool
+    let description: String
+}
+
 @MainActor
 class StatsViewModel: ObservableObject {
     @Published var totalWorkouts = 0
@@ -549,8 +747,9 @@ class StatsViewModel: ObservableObject {
     @Published var mostPopularSport = "—"
     @Published var last7Days = 0
     @Published var currentStreak = 0
+    @Published var achievements: [Achievement] = []
     
-    func calculate(context: NSManagedObjectContext) {
+    func calculate(context: NSManagedObjectContext, lang: Translations) {
         let request: NSFetchRequest<WorkoutHistoryEntity> = WorkoutHistoryEntity.fetchRequest()
         do {
             let workouts = try context.fetch(request)
@@ -565,9 +764,43 @@ class StatsViewModel: ObservableObject {
             last7Days = workouts.filter { ($0.date ?? Date()) >= sevenDaysAgo }.count
             
             currentStreak = calculateStreak(workouts)
+            
+            // Achievements berechnen
+            calculateAchievements(workouts, lang: lang)
         } catch {
             print("Failed to calculate stats: \(error)")
         }
+    }
+    
+    private func calculateAchievements(_ workouts: [WorkoutHistoryEntity], lang: Translations) {
+        var list: [Achievement] = []
+        
+        // 1. 10 Tage Streak
+        list.append(Achievement(
+            title: lang.achievementWarriorTitle,
+            icon: "flame.fill",
+            isUnlocked: currentStreak >= 10,
+            description: lang.achievementWarriorDesc
+        ))
+        
+        // 2. 8 Stunden Gesamt (28.800 Sekunden)
+        list.append(Achievement(
+            title: lang.achievementHardWorkerTitle,
+            icon: "timer",
+            isUnlocked: totalDuration >= 28800,
+            description: lang.achievementHardWorkerDesc
+        ))
+        
+        // 3. 12-Runden Sparring (mindestens ein Workout mit 12 Runden)
+        let has12Rounds = workouts.contains { $0.rounds >= 12 && $0.mode == WorkoutMode.fightTimer.rawValue }
+        list.append(Achievement(
+            title: lang.achievementProFighterTitle,
+            icon: "medal.fill",
+            isUnlocked: has12Rounds,
+            description: lang.achievementProFighterDesc
+        ))
+        
+        self.achievements = list
     }
     
     private func calculateStreak(_ workouts: [WorkoutHistoryEntity]) -> Int {
@@ -603,6 +836,7 @@ struct FightTimerView: View {
     @EnvironmentObject var settings: UserSettings
     @EnvironmentObject var lang: LanguageManager
     @EnvironmentObject var promptManager: AppPromptManager
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showPicker = false
     @State private var showEditor = false
     @State private var showSaved = false
@@ -678,16 +912,16 @@ struct FightTimerView: View {
                                 }
                             }
                             .foregroundColor(.primary)
-                            Button(lang.t.saveWorkout) {
-                                vm.saveWorkoutToHistory(context: context)
-                                showSaved = true
-                                promptManager.recordWorkoutCompleted()
+                            Button(vm.hasSavedCurrentWorkout ? lang.t.saved : lang.t.saveWorkout) {
+                                if vm.saveWorkoutToHistory(context: context) {
+                                    showSaved = true
+                                }
                             }
                             .font(.headline).foregroundColor(.white)
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.blue).cornerRadius(12)
                             .opacity(vm.status == .paused ? 1 : 0)
-                            .disabled(vm.status != .paused)
+                            .disabled(vm.status != .paused || vm.hasSavedCurrentWorkout)
                         }
                         .padding(.horizontal)
                         .padding(.bottom)
@@ -696,8 +930,18 @@ struct FightTimerView: View {
 
             }
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear { vm.settings = settings; vm.language = lang.current }
+            .onAppear {
+                vm.settings = settings
+                vm.language = lang.current
+                vm.historyContext = context
+                vm.onWorkoutSaved = { promptManager.recordWorkoutCompleted() }
+            }
             .onChange(of: lang.current) { new in vm.language = new }
+            .onChange(of: scenePhase) { phase in
+                if phase == .active {
+                    vm.refreshFromClock()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { showSettings = true } label: {
@@ -853,4 +1097,3 @@ struct CustomProfileEditor: View {
 }
 
 // Fortsetzung folgt...
-
