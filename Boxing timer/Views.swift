@@ -504,55 +504,174 @@ struct StatsView: View {
 
 struct HeatmapView: View {
     let workouts: [WorkoutHistoryEntity]
-    private let calendar = Calendar.current
-    private let daysToShow = 7 * 20 // 20 Wochen
+    @EnvironmentObject var lang: LanguageManager
+
+    private let weeksToShow = 18
+    private let cell: CGFloat = 13
+    private let spacing: CGFloat = 3
+    private let weekdayColWidth: CGFloat = 18
+    private let headerHeight: CGFloat = 12
+
+    private var locale: Locale { Locale(identifier: lang.current.rawValue) }
+
+    private var calendar: Calendar {
+        var c = Calendar.current
+        c.locale = locale
+        return c
+    }
+
+    private var monthSymbols: [String] {
+        let f = DateFormatter(); f.locale = locale; return f.shortMonthSymbols
+    }
+
+    private var weekdaySymbols: [String] {
+        let f = DateFormatter(); f.locale = locale; return f.shortWeekdaySymbols
+    }
 
     var body: some View {
-        let trainingDays = getTrainingDays()
-        let today = calendar.startOfDay(for: Date())
-        
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 4) {
-                ForEach(0..<20) { week in
-                    VStack(spacing: 4) {
-                        ForEach(0..<7) { day in
-                            let date = getDate(week: week, day: day, from: today)
-                            let count = trainingDays[date] ?? 0
-                            
-                            RoundedRectangle(cornerRadius: 3)
-                                .fill(colorFor(count: count))
-                                .frame(width: 14, height: 14)
+        let cal = calendar
+        let today = cal.startOfDay(for: Date())
+        let minutes = minutesPerDay(cal: cal)
+        let weekStart = cal.dateInterval(of: .weekOfYear, for: today)?.start ?? today
+        let weekStarts: [Date] = (0..<weeksToShow).map { i in
+            cal.date(byAdding: .weekOfYear, value: -(weeksToShow - 1 - i), to: weekStart) ?? weekStart
+        }
+
+        VStack(alignment: .leading, spacing: 6) {
+            monthHeader(weekStarts: weekStarts, cal: cal)
+
+            HStack(alignment: .top, spacing: spacing) {
+                weekdayColumn(cal: cal)
+                ForEach(Array(weekStarts.enumerated()), id: \.offset) { _, ws in
+                    VStack(spacing: spacing) {
+                        ForEach(0..<7, id: \.self) { row in
+                            let date = cal.date(byAdding: .day, value: row, to: ws) ?? ws
+                            cellView(date: date, today: today, minutes: minutes[date] ?? 0)
                         }
                     }
                 }
             }
-            .padding(8)
-            .background(Color.black.opacity(0.05))
-            .cornerRadius(10)
+
+            legend
         }
+        .padding(8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.primary.opacity(0.04))
+        .cornerRadius(12)
+        .environment(\.layoutDirection, .leftToRight)
     }
 
-    private func getDate(week: Int, day: Int, from today: Date) -> Date {
-        let daysToSubtract = (19 - week) * 7 + (6 - day)
-        return calendar.date(byAdding: .day, value: -daysToSubtract, to: today) ?? today
-    }
-
-    private func getTrainingDays() -> [Date: Int] {
-        var counts: [Date: Int] = [:]
-        for w in workouts {
-            if let date = w.date {
-                let day = calendar.startOfDay(for: date)
-                counts[day, default: 0] += 1
+    private func monthHeader(weekStarts: [Date], cal: Calendar) -> some View {
+        ZStack(alignment: .topLeading) {
+            Color.clear.frame(maxWidth: .infinity, minHeight: headerHeight)
+            ForEach(monthMarkers(weekStarts: weekStarts, cal: cal)) { marker in
+                Text(marker.label)
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+                    .fixedSize()
+                    .offset(x: xFor(col: marker.col))
             }
         }
-        return counts
+        .frame(height: headerHeight)
     }
 
-    private func colorFor(count: Int) -> Color {
-        if count == 0 { return Color.gray.opacity(0.2) }
-        if count == 1 { return Color.green.opacity(0.4) }
-        if count == 2 { return Color.green.opacity(0.7) }
-        return Color.green
+    private func weekdayColumn(cal: Calendar) -> some View {
+        VStack(spacing: spacing) {
+            ForEach(0..<7, id: \.self) { row in
+                Text(row % 2 == 0 ? weekdayLabel(row: row, cal: cal) : "")
+                    .font(.system(size: 9))
+                    .foregroundColor(.secondary)
+                    .frame(width: weekdayColWidth, height: cell, alignment: .trailing)
+            }
+        }
+    }
+
+    private func cellView(date: Date, today: Date, minutes: Int) -> some View {
+        let isFuture = date > today
+        let isToday = date == today
+        return RoundedRectangle(cornerRadius: 3)
+            .fill(isFuture ? Color.clear : color(minutes: minutes))
+            .frame(width: cell, height: cell)
+            .overlay(
+                RoundedRectangle(cornerRadius: 3)
+                    .strokeBorder(Color.primary, lineWidth: isToday ? 1.5 : 0)
+            )
+    }
+
+    private var legend: some View {
+        HStack(spacing: 4) {
+            Text(lang.t.heatmapLess).font(.system(size: 9)).foregroundColor(.secondary)
+            ForEach(0..<5, id: \.self) { level in
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(colorForLevel(level))
+                    .frame(width: 11, height: 11)
+            }
+            Text(lang.t.heatmapMore).font(.system(size: 9)).foregroundColor(.secondary)
+            Spacer()
+            Text(lang.t.heatmapUnit).font(.system(size: 9)).foregroundColor(.secondary)
+        }
+        .padding(.top, 2)
+    }
+
+    // MARK: - Helpers
+
+    private func xFor(col: Int) -> CGFloat {
+        weekdayColWidth + spacing + CGFloat(col) * (cell + spacing)
+    }
+
+    private func minutesPerDay(cal: Calendar) -> [Date: Int] {
+        var m: [Date: Int] = [:]
+        for w in workouts {
+            guard let d = w.date else { continue }
+            let day = cal.startOfDay(for: d)
+            m[day, default: 0] += Int(w.totalDuration) / 60
+        }
+        return m
+    }
+
+    private func weekdayLabel(row: Int, cal: Calendar) -> String {
+        let symbols = weekdaySymbols
+        let idx = (cal.firstWeekday - 1 + row) % 7
+        return idx < symbols.count ? symbols[idx] : ""
+    }
+
+    private struct MonthMarker: Identifiable { let id: Int; let col: Int; let label: String }
+
+    private func monthMarkers(weekStarts: [Date], cal: Calendar) -> [MonthMarker] {
+        var markers: [MonthMarker] = []
+        var lastMonth = -1
+        var lastX: CGFloat = -100
+        for (col, ws) in weekStarts.enumerated() {
+            let m = cal.component(.month, from: ws)
+            guard m != lastMonth else { continue }
+            lastMonth = m
+            let x = xFor(col: col)
+            if x - lastX >= 24, m - 1 >= 0, m - 1 < monthSymbols.count {
+                markers.append(MonthMarker(id: col, col: col, label: monthSymbols[m - 1]))
+                lastX = x
+            }
+        }
+        return markers
+    }
+
+    private func color(minutes: Int) -> Color {
+        switch minutes {
+        case 0:       return Color.gray.opacity(0.15)
+        case 1...14:  return Color.green.opacity(0.35)
+        case 15...29: return Color.green.opacity(0.6)
+        case 30...44: return Color.green.opacity(0.8)
+        default:      return Color.green
+        }
+    }
+
+    private func colorForLevel(_ level: Int) -> Color {
+        switch level {
+        case 0:  return Color.gray.opacity(0.15)
+        case 1:  return Color.green.opacity(0.35)
+        case 2:  return Color.green.opacity(0.6)
+        case 3:  return Color.green.opacity(0.8)
+        default: return Color.green
+        }
     }
 }
 

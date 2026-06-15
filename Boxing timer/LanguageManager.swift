@@ -107,6 +107,9 @@ struct Translations {
 
     // Achievements & Heatmap
     let heatmapTitle: String
+    let heatmapLess: String
+    let heatmapMore: String
+    let heatmapUnit: String
     let achievementsTitle: String
     let notes: String
     let saveNotes: String
@@ -292,7 +295,7 @@ let todoNotifications: String
             tabFightTimer: "Fight Timer", tabIntervals: "Intervals",
             tabHistory: "History", tabStats: "Stats", tabSettings: "Settings",
             tabStopwatch: "Stoppuhr", tabTodos: "Todos",
-            heatmapTitle: "Trainings-Heatmap", achievementsTitle: "Erfolge",
+            heatmapTitle: "Trainings-Heatmap", heatmapLess: "weniger", heatmapMore: "mehr", heatmapUnit: "Min./Tag", achievementsTitle: "Erfolge",
             notes: "Notizen", saveNotes: "Notizen speichern",
             achievementWarriorTitle: "Kriegergeist", achievementWarriorDesc: "10 Tage Trainings-Serie",
             achievementHardWorkerTitle: "Fleißiger Arbeiter", achievementHardWorkerDesc: "8 Stunden Gesamttraining",
@@ -366,7 +369,7 @@ let todoNotifications: String
             tabFightTimer: "Fight Timer", tabIntervals: "Intervals",
             tabHistory: "History", tabStats: "Stats", tabSettings: "Settings",
             tabStopwatch: "Stopwatch", tabTodos: "Todos",
-            heatmapTitle: "Workout Heatmap", achievementsTitle: "Achievements",
+            heatmapTitle: "Workout Heatmap", heatmapLess: "less", heatmapMore: "more", heatmapUnit: "min/day", achievementsTitle: "Achievements",
             notes: "Notes", saveNotes: "Save Notes",
             achievementWarriorTitle: "Warrior Spirit", achievementWarriorDesc: "10 day workout streak",
             achievementHardWorkerTitle: "Hard Worker", achievementHardWorkerDesc: "8 hours of total training",
@@ -439,7 +442,7 @@ let todoNotifications: String
             tabFightTimer: "مؤقت القتال", tabIntervals: "فترات",
             tabHistory: "السجل", tabStats: "إحصاءات", tabSettings: "إعدادات",
             tabStopwatch: "ساعة الإيقاف", tabTodos: "المهام",
-            heatmapTitle: "مخطط التدريب", achievementsTitle: "الإنجازات",
+            heatmapTitle: "مخطط التدريب", heatmapLess: "أقل", heatmapMore: "أكثر", heatmapUnit: "دقيقة/يوم", achievementsTitle: "الإنجازات",
             notes: "ملاحظات", saveNotes: "حفظ الملاحظات",
             achievementWarriorTitle: "روح المحارب", achievementWarriorDesc: "سلسلة تمارين لمدة 10 أيام",
             achievementHardWorkerTitle: "عامل مجد", achievementHardWorkerDesc: "8 ساعات من التدريب الإجمالي",
@@ -512,7 +515,7 @@ let todoNotifications: String
             tabFightTimer: "Cronómetro", tabIntervals: "Intervalos",
             tabHistory: "Historial", tabStats: "Estadísticas", tabSettings: "Ajustes",
             tabStopwatch: "Cronómetro", tabTodos: "Tareas",
-            heatmapTitle: "Mapa de calor", achievementsTitle: "Logros",
+            heatmapTitle: "Mapa de calor", heatmapLess: "menos", heatmapMore: "más", heatmapUnit: "min/día", achievementsTitle: "Logros",
             notes: "Notas", saveNotes: "Guardar notas",
             achievementWarriorTitle: "Espíritu Guerrero", achievementWarriorDesc: "Racha de 10 días de entrenamiento",
             achievementHardWorkerTitle: "Trabajador Incansable", achievementHardWorkerDesc: "8 horas de entrenamiento total",
@@ -585,7 +588,7 @@ let todoNotifications: String
             tabFightTimer: "Chrono Combat", tabIntervals: "Intervalles",
             tabHistory: "Historique", tabStats: "Statistiques", tabSettings: "Réglages",
             tabStopwatch: "Chronomètre", tabTodos: "Tâches",
-            heatmapTitle: "Carte thermique", achievementsTitle: "Succès",
+            heatmapTitle: "Carte thermique", heatmapLess: "moins", heatmapMore: "plus", heatmapUnit: "min/jour", achievementsTitle: "Succès",
             notes: "Notes", saveNotes: "Enregistrer les notes",
             achievementWarriorTitle: "Esprit Guerrier", achievementWarriorDesc: "Série de 10 jours d'entraînement",
             achievementHardWorkerTitle: "Travailleur Acharné", achievementHardWorkerDesc: "8 heures d'entraînement total",
@@ -658,7 +661,7 @@ let todoNotifications: String
             tabFightTimer: "Таймер", tabIntervals: "Интервалы",
             tabHistory: "История", tabStats: "Статистика", tabSettings: "Настройки",
             tabStopwatch: "Секундомер", tabTodos: "Задачи",
-            heatmapTitle: "Активность", achievementsTitle: "Достижения",
+            heatmapTitle: "Активность", heatmapLess: "меньше", heatmapMore: "больше", heatmapUnit: "мин/день", achievementsTitle: "Достижения",
             notes: "Заметки", saveNotes: "Сохранить заметки",
             achievementWarriorTitle: "Дух воина", achievementWarriorDesc: "10-дневная серия тренировок",
             achievementHardWorkerTitle: "Трудоголик", achievementHardWorkerDesc: "8 часов тренировок всего",
@@ -731,7 +734,7 @@ let todoNotifications: String
             tabFightTimer: "Timer de Luta", tabIntervals: "Intervalos",
             tabHistory: "Histórico", tabStats: "Estatísticas", tabSettings: "Ajustes",
             tabStopwatch: "Cronômetro", tabTodos: "Tarefas",
-            heatmapTitle: "Mapa de Calor", achievementsTitle: "Conquistas",
+            heatmapTitle: "Mapa de Calor", heatmapLess: "menos", heatmapMore: "mais", heatmapUnit: "min/dia", achievementsTitle: "Conquistas",
             notes: "Notas", saveNotes: "Salvar Notas",
             achievementWarriorTitle: "Espírito Guerreiro", achievementWarriorDesc: "Sequência de 10 dias de treino",
             achievementHardWorkerTitle: "Trabalhador Árduo", achievementHardWorkerDesc: "8 horas de treino total",
