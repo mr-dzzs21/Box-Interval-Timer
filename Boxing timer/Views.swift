@@ -446,13 +446,13 @@ struct StatsView: View {
 
                     // Favorite Sport
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(lang.t.favoriteSport).font(.headline)
+                        Text(lang.t.favoriteSport).font(DS.headline()).foregroundColor(.white)
                         HStack {
-                            Text(vm.mostPopularSport).font(.title).fontWeight(.bold)
+                            Text(vm.mostPopularSport).font(DS.display(24)).foregroundColor(.white)
                             Spacer()
                         }
                         .padding().frame(maxWidth: .infinity)
-                        .background(Color.blue.opacity(0.1)).cornerRadius(12)
+                        .background(DS.surface).clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 30)
@@ -656,25 +656,24 @@ struct AchievementCard: View {
         VStack(spacing: 10) {
             ZStack {
                 Circle()
-                    .fill(achievement.isUnlocked ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1))
+                    .fill(achievement.isUnlocked ? DS.accent.opacity(0.20) : Color.white.opacity(0.06))
                     .frame(width: 60, height: 60)
                 Image(systemName: achievement.icon)
-                    .font(.system(size: 30))
-                    .foregroundColor(achievement.isUnlocked ? .blue : .gray)
+                    .font(.system(size: 28))
+                    .foregroundColor(achievement.isUnlocked ? DS.accent : DS.textTertiary)
             }
             Text(achievement.title)
                 .font(.caption).fontWeight(.bold)
-                .foregroundColor(achievement.isUnlocked ? .primary : .secondary)
+                .foregroundColor(achievement.isUnlocked ? .white : DS.textSecondary)
             Text(achievement.description)
                 .font(.system(size: 8))
-                .foregroundColor(.secondary)
+                .foregroundColor(DS.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(width: 80)
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .background(DS.surface)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
         .opacity(achievement.isUnlocked ? 1.0 : 0.6)
     }
 }
@@ -686,13 +685,13 @@ struct StatCard: View {
     let color: Color
 
     var body: some View {
-        VStack(spacing: 10) {
-            Image(systemName: icon).font(.system(size: 30)).foregroundColor(color)
-            Text(value).font(.title).fontWeight(.bold)
-            Text(title).font(.caption).foregroundColor(.secondary)
+        VStack(spacing: 8) {
+            Image(systemName: icon).font(.system(size: 26, weight: .semibold)).foregroundColor(color)
+            Text(value).font(DS.display(26)).foregroundColor(.white)
+            Text(title).font(.caption).foregroundColor(DS.textSecondary)
         }
-        .frame(maxWidth: .infinity).padding()
-        .background(color.opacity(0.1)).cornerRadius(12)
+        .frame(maxWidth: .infinity).padding(.vertical, DS.Space.m)
+        .background(DS.surface).clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
     }
 }
 
