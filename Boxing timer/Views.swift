@@ -990,116 +990,144 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section(lang.t.audioHaptic) {
-                    Toggle(lang.t.soundEnabled, isOn: $settings.soundEnabled)
-                    Toggle(lang.t.vibrationEnabled, isOn: $settings.vibrationEnabled)
-                    Toggle(lang.t.warningEnabled, isOn: $settings.warningEnabled)
-                }
+            ScrollView {
+                VStack(spacing: DS.Space.l) {
+                    section(lang.t.audioHaptic) {
+                        toggleRow(lang.t.soundEnabled, $settings.soundEnabled)
+                        Divider().overlay(DS.divider)
+                        toggleRow(lang.t.vibrationEnabled, $settings.vibrationEnabled)
+                        Divider().overlay(DS.divider)
+                        toggleRow(lang.t.warningEnabled, $settings.warningEnabled)
+                    }
 
-                Section("Todos") {
-                    Toggle(lang.t.todoNotifications, isOn: $settings.todoNotificationsEnabled)
-                        .onChange(of: settings.todoNotificationsEnabled) { enabled in
-                            if enabled {
-                                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-                                    DispatchQueue.main.async {
-                                        if granted {
-                                            TodoManager.shared.scheduleNotificationIfNeeded()
-                                        } else {
-                                            settings.todoNotificationsEnabled = false
+                    section("Todos") {
+                        Toggle(lang.t.todoNotifications, isOn: $settings.todoNotificationsEnabled)
+                            .tint(DS.accent)
+                            .font(DS.body())
+                            .foregroundColor(.white)
+                            .onChange(of: settings.todoNotificationsEnabled) { enabled in
+                                if enabled {
+                                    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+                                        DispatchQueue.main.async {
+                                            if granted {
+                                                TodoManager.shared.scheduleNotificationIfNeeded()
+                                            } else {
+                                                settings.todoNotificationsEnabled = false
+                                            }
                                         }
                                     }
+                                } else {
+                                    TodoManager.shared.cancelNotifications()
                                 }
-                            } else {
-                                TodoManager.shared.cancelNotifications()
                             }
-                        }
-                }
+                    }
 
-                Section {
-                    Button {
-                        showDonation = true
-                    } label: {
+                    Button { showDonation = true } label: {
                         HStack {
                             Text("🙏")
-                            Text(lang.t.donationSupport)
-                                .foregroundColor(.primary)
+                            Text(lang.t.donationSupport).font(DS.body()).foregroundColor(.white)
                             Spacer()
-                            Image(systemName: "heart.fill")
-                                .foregroundColor(.red)
+                            Image(systemName: "heart.fill").foregroundColor(DS.accent)
                         }
+                        .dsCard()
                     }
-                }
 
-                // Sprachauswahl
-                Section(lang.t.language) {
-                    ForEach(AppLanguage.allCases, id: \.self) { language in
-                        Button {
-                            lang.current = language
-                        } label: {
-                            HStack {
-                                Text(language.displayName).foregroundColor(.primary)
-                                Spacer()
-                                if lang.current == language {
-                                    Image(systemName: "checkmark").foregroundColor(.blue)
+                    section(lang.t.language) {
+                        ForEach(Array(AppLanguage.allCases.enumerated()), id: \.element) { idx, language in
+                            Button { lang.current = language } label: {
+                                HStack {
+                                    Text(language.displayName).font(DS.body()).foregroundColor(.white)
+                                    Spacer()
+                                    if lang.current == language {
+                                        Image(systemName: "checkmark").foregroundColor(DS.accent)
+                                    }
                                 }
+                                .contentShape(Rectangle())
+                                .padding(.vertical, 7)
                             }
+                            if idx < AppLanguage.allCases.count - 1 { Divider().overlay(DS.divider) }
                         }
                     }
-                }
 
-                Section(lang.t.about) {
-                    HStack {
-                        Text(lang.t.version)
-                        Spacer()
-                        Text(appVersion).foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text(lang.t.developer)
-                        Spacer()
-                        Text("Diyar Kaymaz").foregroundColor(.secondary)
-                    }
-                    Link(destination: URL(string: "mailto:box.timer.app@gmail.com?subject=Feedback%20-%20Boxing%20Interval%20Timer")!) {
-                        HStack {
-                            Image(systemName: "envelope")
-                                .foregroundColor(.blue)
-                            Text(lang.t.feedbackButton)
-                                .foregroundColor(.primary)
+                    section(lang.t.about) {
+                        aboutRow(lang.t.version, value: appVersion)
+                        Divider().overlay(DS.divider)
+                        aboutRow(lang.t.developer, value: "Diyar Kaymaz")
+                        Divider().overlay(DS.divider)
+                        Link(destination: URL(string: "mailto:box.timer.app@gmail.com?subject=Feedback%20-%20Boxing%20Interval%20Timer")!) {
+                            linkRow(icon: "envelope", iconColor: DS.accent, title: lang.t.feedbackButton)
+                        }
+                        Divider().overlay(DS.divider)
+                        Link(destination: URL(string: "https://apps.apple.com/app/id6759615674?action=write-review")!) {
+                            linkRow(icon: "star.fill", iconColor: .yellow, title: lang.t.rateApp)
+                        }
+                        Divider().overlay(DS.divider)
+                        NavigationLink(destination: PrivacyPolicyView()) {
+                            linkRow(icon: "lock.shield", iconColor: DS.textSecondary, title: lang.t.privacyPolicy)
                         }
                     }
-                    // ⚠️ App Store ID hier eintragen nach Veröffentlichung: z.B. "1234567890"
-                    Link(destination: URL(string: "https://apps.apple.com/app/id6759615674?action=write-review")!) {
-                        HStack {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.yellow)
-                            Text(lang.t.rateApp)
-                                .foregroundColor(.primary)
-                        }
-                    }
-                    NavigationLink(destination: PrivacyPolicyView()) {
-                        Text(lang.t.privacyPolicy)
-                    }
-                }
 
-                Section(lang.t.presetsInfo) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Fight Timer Presets:").font(.headline)
-                        Text("• Boxen: 12x3min")
-                        Text("• MMA: 3x5min")
-                        Text("• K1: 3x3min")
-                        Text("• Muay Thai: 5x3min")
-                        Text("• BJJ: 1x5min")
-                        Text("• Judo: 1x4min")
-                        Text("• Ringen: 3x2min")
-                        Text("• Taekwondo: 3x2min")
+                    section(lang.t.presetsInfo) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("• Boxen: 12x3min")
+                            Text("• MMA: 3x5min")
+                            Text("• K1: 3x3min")
+                            Text("• Muay Thai: 5x3min")
+                            Text("• BJJ: 1x5min")
+                            Text("• Judo: 1x4min")
+                            Text("• Ringen: 3x2min")
+                            Text("• Taekwondo: 3x2min")
+                        }
+                        .font(.caption)
+                        .foregroundColor(DS.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .font(.caption).foregroundColor(.secondary)
                 }
+                .padding()
             }
+            .background(DS.bg.ignoresSafeArea())
             .navigationTitle(lang.t.settingsTitle)
+            .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $showDonation) {
             DonationView()
+        }
+    }
+
+    @ViewBuilder
+    private func section<Content: View>(_ title: String, @ViewBuilder _ content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: DS.Space.s) {
+            Text(title.uppercased())
+                .font(.system(size: 12, weight: .bold))
+                .tracking(1.5)
+                .foregroundColor(DS.textTertiary)
+                .padding(.leading, 4)
+            VStack(spacing: 8) { content() }
+                .dsCard()
+        }
+    }
+
+    private func toggleRow(_ title: String, _ isOn: Binding<Bool>) -> some View {
+        Toggle(title, isOn: isOn)
+            .tint(DS.accent)
+            .font(DS.body())
+            .foregroundColor(.white)
+    }
+
+    private func aboutRow(_ title: String, value: String) -> some View {
+        HStack {
+            Text(title).font(DS.body()).foregroundColor(.white)
+            Spacer()
+            Text(value).font(DS.body()).foregroundColor(DS.textSecondary)
+        }
+    }
+
+    private func linkRow(icon: String, iconColor: Color, title: String) -> some View {
+        HStack {
+            Image(systemName: icon).foregroundColor(iconColor).frame(width: 22)
+            Text(title).font(DS.body()).foregroundColor(.white)
+            Spacer()
+            Image(systemName: "chevron.right").font(.system(size: 12, weight: .bold)).foregroundColor(DS.textTertiary)
         }
     }
 

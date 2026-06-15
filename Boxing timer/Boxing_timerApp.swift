@@ -7,6 +7,7 @@ import SwiftUI
 import CoreData
 import StoreKit
 import UserNotifications
+import UIKit
 
 @main
 struct Boxing_timerApp: App {
@@ -47,6 +48,21 @@ struct MainTabView: View {
     @EnvironmentObject var promptManager: AppPromptManager
     @Environment(\.requestReview) private var requestReview
 
+    init() {
+        // Tab-Bar: opakes Dunkel + Orange-Akzent (kein System-Blau / keine Transluzenz)
+        let tab = UITabBarAppearance()
+        tab.configureWithOpaqueBackground()
+        tab.backgroundColor = UIColor(DS.bg)
+        tab.shadowColor = UIColor(DS.divider)
+        let item = tab.stackedLayoutAppearance
+        item.selected.iconColor = UIColor(DS.accent)
+        item.selected.titleTextAttributes = [.foregroundColor: UIColor(DS.accent)]
+        item.normal.iconColor = UIColor(DS.textTertiary)
+        item.normal.titleTextAttributes = [.foregroundColor: UIColor(DS.textTertiary)]
+        UITabBar.appearance().standardAppearance = tab
+        UITabBar.appearance().scrollEdgeAppearance = tab
+    }
+
     var body: some View {
         TabView {
             FightTimerView()
@@ -78,5 +94,7 @@ struct MainTabView: View {
                 requestReview()
             }
         }
+        .tint(DS.accent)
+        .preferredColorScheme(.dark)
     }
 }
