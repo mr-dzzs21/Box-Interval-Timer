@@ -53,9 +53,9 @@
 
 /* Begin PBXFileReference section */
 		8D2B69002F530093007BC9F3 /* Boxing timerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing timerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8D7A00022F60000000AA0002 /* Boxing timerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing timerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D2B690B2F53023F007BC9F3 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		8D2B690F2F53053B007BC9F3 /* StoreKitConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = StoreKitConfig.storekit; path = "Boxing timer/StoreKitConfig.storekit"; sourceTree = "<group>"; };
+		8D7A00022F60000000AA0002 /* Boxing timerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Boxing timerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DAD36132F2587410016E88F /* Boxing timer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Boxing timer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DBDBFDD2F4B1774001996EE /* BoxingTimerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BoxingTimerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DBDBFDF2F4B1774001996EE /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };

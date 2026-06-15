@@ -36,9 +36,10 @@ struct IntervalTimerView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                vm.backgroundColor.ignoresSafeArea()
+                AthleticBackground(color: vm.backgroundColor, phase: vm.phase)
                 if showConfig { configView } else { timerView }
             }
+            .preferredColorScheme(.dark)
             .navigationTitle(lang.t.intervalTitle)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
@@ -71,12 +72,13 @@ struct IntervalTimerView: View {
                             vm.reset()
                             showConfig = true
                         } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "chevron.left")
-                                Text(lang.t.back)
+                            DSChip {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "chevron.left").font(.system(size: 12, weight: .bold))
+                                    Text(lang.t.back).font(.system(size: 15, weight: .bold))
+                                }
                             }
                         }
-                        .foregroundColor(.primary)
                     }
                 }
             }
@@ -86,9 +88,13 @@ struct IntervalTimerView: View {
     var configView: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: DS.Space.m) {
                     Text(lang.t.chooseTraining)
-                        .font(.title2).fontWeight(.bold).padding(.top, 40)
+                        .font(DS.display(26))
+                        .textCase(.uppercase)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, DS.Space.l)
 
                     Picker("Modus", selection: $useCustom) {
                         Text(lang.t.preset).tag(false)
@@ -99,28 +105,26 @@ struct IntervalTimerView: View {
                     if useCustom {
                         VStack(spacing: 0) {
                             stepperRow(label: lang.t.warmUp, value: $customWarmup, range: 0...600, step: 5, unit: "s")
-                            Divider()
+                            Divider().overlay(DS.divider)
                             stepperRow(label: lang.t.intervals, value: $customIntervals, range: 1...50, step: 1, unit: "x")
-                            Divider()
+                            Divider().overlay(DS.divider)
                             stepperRow(label: lang.t.work, value: $customWork, range: 5...600, step: 1, unit: "s")
-                            Divider()
+                            Divider().overlay(DS.divider)
                             stepperRow(label: lang.t.rest, value: $customRest, range: 0...600, step: 1, unit: "s")
                         }
-                        .background(Color.black.opacity(0.1))
-                        .cornerRadius(12)
+                        .background(DS.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(lang.t.yourTraining).font(.headline)
-                            Text("\(lang.t.warmUp): \(customWarmup)s")
-                            Text("\(lang.t.intervals): \(customIntervals)x (\(customWork)s \(lang.t.work) / \(customRest)s \(lang.t.rest))")
-                            Text("\(lang.t.totalApprox) \(totalMinutes) min")
+                        VStack(alignment: .leading, spacing: DS.Space.xs) {
+                            Text(lang.t.yourTraining).font(DS.headline()).foregroundColor(.white)
+                            Text("\(lang.t.warmUp): \(customWarmup)s").foregroundColor(DS.textSecondary)
+                            Text("\(lang.t.intervals): \(customIntervals)x (\(customWork)s \(lang.t.work) / \(customRest)s \(lang.t.rest))").foregroundColor(DS.textSecondary)
+                            Text("\(lang.t.totalApprox) \(totalMinutes) min").foregroundColor(DS.textSecondary)
                         }
-                        .padding().frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.black.opacity(0.1)).cornerRadius(12)
-
+                        .dsCard()
                     } else {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(lang.t.device).font(.headline)
+                        VStack(alignment: .leading, spacing: DS.Space.s) {
+                            Text(lang.t.device).font(DS.headline()).foregroundColor(.white)
                             Picker(lang.t.device, selection: $selectedDevice) {
                                 ForEach(IntervalDevice.allCases, id: \.self) { d in
                                     Text(d.localizedName(lang.t)).tag(d)
@@ -128,10 +132,10 @@ struct IntervalTimerView: View {
                             }
                             .pickerStyle(.segmented)
                         }
-                        .padding().background(Color.black.opacity(0.1)).cornerRadius(12)
+                        .dsCard()
 
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text(lang.t.level).font(.headline)
+                        VStack(alignment: .leading, spacing: DS.Space.s) {
+                            Text(lang.t.level).font(DS.headline()).foregroundColor(.white)
                             Picker(lang.t.level, selection: $selectedLevel) {
                                 ForEach(IntervalLevel.allCases, id: \.self) { l in
                                     Text(l.localizedName(lang.t)).tag(l)
@@ -139,17 +143,16 @@ struct IntervalTimerView: View {
                             }
                             .pickerStyle(.segmented)
                         }
-                        .padding().background(Color.black.opacity(0.1)).cornerRadius(12)
+                        .dsCard()
 
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(lang.t.yourTraining).font(.headline)
+                        VStack(alignment: .leading, spacing: DS.Space.s) {
+                            Text(lang.t.yourTraining).font(DS.headline()).foregroundColor(.white)
                             let w = IntervalWorkout.workout(for: selectedDevice, level: selectedLevel)
-                            Text("\(lang.t.warmUp): \(w.warmupSeconds / 60) min")
-                            Text("\(lang.t.intervals): \(w.intervals)x (\(w.workSeconds)s \(lang.t.work) / \(w.restSeconds)s \(lang.t.rest))")
-                            Text("\(lang.t.coolDown): \(w.cooldownSeconds / 60) min")
+                            Text("\(lang.t.warmUp): \(w.warmupSeconds / 60) min").foregroundColor(DS.textSecondary)
+                            Text("\(lang.t.intervals): \(w.intervals)x (\(w.workSeconds)s \(lang.t.work) / \(w.restSeconds)s \(lang.t.rest))").foregroundColor(DS.textSecondary)
+                            Text("\(lang.t.coolDown): \(w.cooldownSeconds / 60) min").foregroundColor(DS.textSecondary)
                         }
-                        .padding().frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.black.opacity(0.1)).cornerRadius(12)
+                        .dsCard()
                     }
                 }
                 .padding()
@@ -168,25 +171,18 @@ struct IntervalTimerView: View {
                 showConfig = false
             } label: {
                 Text(lang.t.startTraining)
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(12)
             }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
+            .buttonStyle(DSPrimaryButtonStyle())
             .padding()
         }
     }
 
     private func stepperRow(label: String, value: Binding<Int>, range: ClosedRange<Int>, step: Int, unit: String) -> some View {
         HStack {
-            Text(label).font(.body)
+            Text(label).font(DS.body()).foregroundColor(.white)
             Spacer()
-            Text("\(value.wrappedValue)\(unit)").foregroundColor(.secondary).frame(width: 50, alignment: .trailing)
-            Stepper("", value: value, in: range, step: step).labelsHidden()
+            Text("\(value.wrappedValue)\(unit)").font(DS.body()).foregroundColor(DS.textSecondary).frame(width: 52, alignment: .trailing)
+            Stepper("", value: value, in: range, step: step).labelsHidden().tint(DS.accent)
         }
         .padding(.horizontal).padding(.vertical, 12)
     }
@@ -201,77 +197,54 @@ struct IntervalTimerView: View {
             if geo.size.width > geo.size.height {
                 // QUERFORMAT
                 HStack(spacing: 0) {
-                    Text(vm.timeString)
-                        .font(.system(size: geo.size.height * 0.65, weight: .bold, design: .rounded))
-                        .foregroundColor(.primary)
-                        .minimumScaleFactor(0.3)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    VStack(spacing: 2) {
+                        Text(vm.phaseText)
+                            .font(DS.display(20)).textCase(.uppercase).tracking(2)
+                            .foregroundColor(.white.opacity(0.9))
+                        Text(vm.timeString)
+                            .font(DS.timer(geo.size.height * 0.6))
+                            .monospacedDigit()
+                            .foregroundColor(.white)
+                            .minimumScaleFactor(0.3)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    VStack(spacing: 24) {
-                        Button { vm.reset() } label: {
-                            Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
-                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                        }
-                        Button {
+                    VStack(spacing: 20) {
+                        DSCircleButton(icon: "arrow.counterclockwise") { vm.reset() }
+                        DSPlayPauseButton(isRunning: vm.status == .running) {
                             if vm.status == .running { vm.pause() }
                             else { vm.status == .idle ? vm.start() : vm.resume() }
-                        } label: {
-                            Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
-                                .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
                         }
-                        Button { vm.skip() } label: {
-                            Image(systemName: "forward.fill").font(.system(size: 28))
-                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                        }
+                        DSCircleButton(icon: "forward.fill") { vm.skip() }
                     }
-                    .foregroundColor(.primary)
-                    .padding(.trailing, 40)
+                    .padding(.trailing, 36)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // HOCHFORMAT
-                let circleSize = min(geo.size.width * 0.82, geo.size.height * 0.48, 320)
-                VStack(spacing: 12) {
-                    Spacer()
-                    Text(vm.phaseText)
-                        .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
-                    ZStack {
-                        Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: circleSize, height: circleSize)
-                        Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                            .frame(width: circleSize, height: circleSize).rotationEffect(.degrees(-90))
-                            .animation(.linear(duration: 0.5), value: vm.progress)
-                        Text(vm.timeString).font(.system(size: min(102, circleSize * 0.33), weight: .bold, design: .rounded)).foregroundColor(.primary)
-                    }
-                    Spacer()
-                    HStack(spacing: 30) {
-                        Button { vm.reset() } label: {
-                            Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
-                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                        }
-                        Button {
+                let ring = min(geo.size.width * 0.82, geo.size.height * 0.46, 330)
+                VStack(spacing: DS.Space.m) {
+                    Spacer(minLength: 8)
+                    DSTimerDial(phaseText: vm.phaseText, timeString: vm.timeString, progress: vm.progress, diameter: ring)
+                    Spacer(minLength: 8)
+                    HStack(spacing: 28) {
+                        DSCircleButton(icon: "arrow.counterclockwise") { vm.reset() }
+                        DSPlayPauseButton(isRunning: vm.status == .running) {
                             if vm.status == .running { vm.pause() }
                             else { vm.status == .idle ? vm.start() : vm.resume() }
-                        } label: {
-                            Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
-                                .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
                         }
-                        Button { vm.skip() } label: {
-                            Image(systemName: "forward.fill").font(.system(size: 28))
-                                .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                        }
+                        DSCircleButton(icon: "forward.fill") { vm.skip() }
                     }
-                    .foregroundColor(.primary)
                     Button(vm.hasSavedCurrentWorkout ? lang.t.saved : lang.t.saveWorkout) {
                         if vm.saveWorkoutToHistory(context: context) {
                             showSaved = true
                         }
                     }
-                    .font(.headline).foregroundColor(.white)
-                    .frame(maxWidth: .infinity).padding()
-                    .background(Color.blue).cornerRadius(12)
+                    .buttonStyle(DSPrimaryButtonStyle())
                     .opacity(vm.status == .paused ? 1 : 0)
                     .disabled(vm.status != .paused || vm.hasSavedCurrentWorkout)
+                    .padding(.top, 4)
                 }
                 .padding(.horizontal)
                 .padding(.bottom)

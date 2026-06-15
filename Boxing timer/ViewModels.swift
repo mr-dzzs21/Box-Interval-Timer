@@ -349,11 +349,13 @@ class FightTimerViewModel: ObservableObject {
     }
 
     var backgroundColor: Color {
+        // Farbe nach Phase: Runde = grün, Pause/Rest = rot. Bleibt beim Stoppen
+        // erhalten (Stopp in der Runde = grün, Stopp in der Pause = rot).
         switch phase {
         case .warmup, .cooldown: return .gray.opacity(0.3)
-        case .round: return .green.opacity(1.0)
-        case .rest: return .red.opacity(1.0)
-        case .finished: return .blue.opacity(0.3)
+        case .round:             return .green.opacity(1.0)
+        case .rest:              return .red.opacity(1.0)
+        case .finished:          return .blue.opacity(0.3)
         }
     }
 
@@ -706,11 +708,13 @@ class IntervalTimerViewModel: ObservableObject {
     }
 
     var backgroundColor: Color {
+        // Farbe nach Phase: Runde = grün, Pause/Rest = rot. Bleibt beim Stoppen
+        // erhalten (Stopp in der Runde = grün, Stopp in der Pause = rot).
         switch phase {
         case .warmup, .cooldown: return .gray.opacity(0.3)
-        case .round: return .green.opacity(1.0)
-        case .rest: return .red.opacity(1.0)
-        case .finished: return .blue.opacity(0.3)
+        case .round:             return .green.opacity(1.0)
+        case .rest:              return .red.opacity(1.0)
+        case .finished:          return .blue.opacity(0.3)
         }
     }
 
@@ -882,89 +886,22 @@ struct FightTimerView: View {
         NavigationStack {
             ZStack {
                 vm.backgroundColor.ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.3), value: vm.phase)
+                LinearGradient(
+                    colors: [Color.black.opacity(0.05), Color.black.opacity(0.38)],
+                    startPoint: .top, endPoint: .bottom
+                )
+                .ignoresSafeArea()
 
                 GeometryReader { geo in
                     if geo.size.width > geo.size.height {
-                        // QUERFORMAT
-                        HStack(spacing: 0) {
-                            Text(vm.timeString)
-                                .font(.system(size: geo.size.height * 0.65, weight: .bold, design: .rounded))
-                                .foregroundColor(.primary)
-                                .minimumScaleFactor(0.3)
-                                .lineLimit(1)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-
-                            VStack(spacing: 24) {
-                                Button { vm.reset() } label: {
-                                    Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
-                                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                                }
-                                Button {
-                                    if vm.status == .running { vm.pause() }
-                                    else { vm.status == .idle ? vm.start() : vm.resume() }
-                                } label: {
-                                    Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
-                                        .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
-                                }
-                                Button { vm.skip() } label: {
-                                    Image(systemName: "forward.fill").font(.system(size: 28))
-                                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                                }
-                            }
-                            .foregroundColor(.primary)
-                            .padding(.trailing, 40)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        landscapeLayout(geo: geo)
                     } else {
-                        // HOCHFORMAT
-                        let circleSize = min(geo.size.width * 0.82, geo.size.height * 0.48, 320)
-                        VStack(spacing: 12) {
-                            Spacer()
-                            Text(vm.phaseText)
-                                .font(.system(size: 32, weight: .bold)).foregroundColor(.primary)
-                            ZStack {
-                                Circle().stroke(Color.gray.opacity(0.3), lineWidth: 15).frame(width: circleSize, height: circleSize)
-                                Circle().trim(from: 0, to: vm.progress).stroke(Color.primary, style: StrokeStyle(lineWidth: 15, lineCap: .round))
-                                    .frame(width: circleSize, height: circleSize).rotationEffect(.degrees(-90))
-                                    .animation(.linear(duration: 0.5), value: vm.progress)
-                                Text(vm.timeString).font(.system(size: min(102, circleSize * 0.33), weight: .bold, design: .rounded)).foregroundColor(.primary)
-                            }
-                            Spacer()
-                            HStack(spacing: 30) {
-                                Button { vm.reset() } label: {
-                                    Image(systemName: "arrow.counterclockwise").font(.system(size: 28))
-                                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                                }
-                                Button {
-                                    if vm.status == .running { vm.pause() }
-                                    else { vm.status == .idle ? vm.start() : vm.resume() }
-                                } label: {
-                                    Image(systemName: vm.status == .running ? "pause.fill" : "play.fill").font(.system(size: 36))
-                                        .frame(width: 90, height: 90).background(Color.primary).foregroundColor(vm.backgroundColor).clipShape(Circle())
-                                }
-                                Button { vm.skip() } label: {
-                                    Image(systemName: "forward.fill").font(.system(size: 28))
-                                        .frame(width: 70, height: 70).background(Color.black.opacity(0.2)).clipShape(Circle())
-                                }
-                            }
-                            .foregroundColor(.primary)
-                            Button(vm.hasSavedCurrentWorkout ? lang.t.saved : lang.t.saveWorkout) {
-                                if vm.saveWorkoutToHistory(context: context) {
-                                    showSaved = true
-                                }
-                            }
-                            .font(.headline).foregroundColor(.white)
-                            .frame(maxWidth: .infinity).padding()
-                            .background(Color.blue).cornerRadius(12)
-                            .opacity(vm.status == .paused ? 1 : 0)
-                            .disabled(vm.status != .paused || vm.hasSavedCurrentWorkout)
-                        }
-                        .padding(.horizontal)
-                        .padding(.bottom)
+                        portraitLayout(geo: geo)
                     }
                 }
-
             }
+            .preferredColorScheme(.dark)
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 vm.settings = settings
@@ -982,24 +919,29 @@ struct FightTimerView: View {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button { showSettings = true } label: {
                         Image(systemName: "gearshape.fill")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundColor(.white)
                     }
                 }
                 ToolbarItem(placement: .principal) {
                     Button { showPicker = true } label: {
-                        HStack(spacing: 4) {
-                            Text(lang.t.localizedPresetName(vm.currentPreset.name)).font(.headline)
-                            Image(systemName: "chevron.down").font(.caption)
+                        HStack(spacing: 6) {
+                            Text(lang.t.localizedPresetName(vm.currentPreset.name))
+                                .font(.system(size: 16, weight: .bold))
+                            Image(systemName: "chevron.down").font(.system(size: 11, weight: .bold))
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.black.opacity(0.2))
-                        .cornerRadius(10)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 7)
+                        .background(Color.black.opacity(0.25))
+                        .clipShape(Capsule())
                     }
-                    .foregroundColor(.primary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button { showEditor = true } label: {
                         Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 19, weight: .semibold))
+                            .foregroundColor(.white)
                     }
                 }
             }
@@ -1024,6 +966,130 @@ struct FightTimerView: View {
                 Text(vm.saveErrorMessage ?? "")
             }
         }
+    }
+
+    // MARK: - Layouts (Bold / Athletic)
+
+    private func portraitLayout(geo: GeometryProxy) -> some View {
+        let ring = min(geo.size.width * 0.82, geo.size.height * 0.46, 330)
+        return VStack(spacing: 16) {
+            Spacer(minLength: 8)
+            Text(vm.phaseText)
+                .font(.system(size: 28, weight: .heavy, design: .rounded))
+                .textCase(.uppercase)
+                .tracking(2)
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+            ZStack {
+                Circle().stroke(Color.white.opacity(0.18), lineWidth: 14)
+                Circle().trim(from: 0, to: vm.progress)
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 0.5), value: vm.progress)
+                Text(vm.timeString)
+                    .font(.system(size: min(94, ring * 0.30), weight: .black, design: .rounded))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.5)
+                    .foregroundColor(.white)
+                    .frame(width: ring * 0.86)
+                    .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+            }
+            .frame(width: ring, height: ring)
+            Spacer(minLength: 8)
+            HStack(spacing: 28) {
+                resetButton
+                playPauseButton
+                skipButton
+            }
+            saveButton
+        }
+        .padding(.horizontal)
+        .padding(.bottom)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private func landscapeLayout(geo: GeometryProxy) -> some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 2) {
+                Text(vm.phaseText)
+                    .font(.system(size: 20, weight: .heavy, design: .rounded))
+                    .textCase(.uppercase)
+                    .tracking(2)
+                    .foregroundColor(.white.opacity(0.9))
+                Text(vm.timeString)
+                    .font(.system(size: geo.size.height * 0.6, weight: .black, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundColor(.white)
+                    .minimumScaleFactor(0.3)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            VStack(spacing: 20) {
+                resetButton
+                playPauseButton
+                skipButton
+            }
+            .padding(.trailing, 36)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Controls
+
+    private var resetButton: some View {
+        secondaryButton(icon: "arrow.counterclockwise") { vm.reset() }
+    }
+
+    private var skipButton: some View {
+        secondaryButton(icon: "forward.fill") { vm.skip() }
+    }
+
+    private func secondaryButton(icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 62, height: 62)
+                .background(Color.black.opacity(0.22))
+                .clipShape(Circle())
+                .overlay(Circle().strokeBorder(Color.white.opacity(0.25), lineWidth: 1.5))
+        }
+    }
+
+    private var playPauseButton: some View {
+        Button {
+            if vm.status == .running { vm.pause() }
+            else { vm.status == .idle ? vm.start() : vm.resume() }
+        } label: {
+            Image(systemName: vm.status == .running ? "pause.fill" : "play.fill")
+                .font(.system(size: 38, weight: .black))
+                .foregroundColor(.black)
+                .frame(width: 92, height: 92)
+                .background(Color.white)
+                .clipShape(Circle())
+                .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
+        }
+    }
+
+    private var saveButton: some View {
+        Button(vm.hasSavedCurrentWorkout ? lang.t.saved : lang.t.saveWorkout) {
+            if vm.saveWorkoutToHistory(context: context) {
+                showSaved = true
+            }
+        }
+        .font(.system(size: 17, weight: .bold))
+        .textCase(.uppercase)
+        .foregroundColor(.black)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .opacity(vm.status == .paused ? 1 : 0)
+        .disabled(vm.status != .paused || vm.hasSavedCurrentWorkout)
+        .padding(.top, 4)
     }
 }
 
