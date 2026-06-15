@@ -114,11 +114,15 @@ struct IntervalTimerView: View {
                         .background(DS.surface)
                         .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
 
-                        VStack(alignment: .leading, spacing: DS.Space.xs) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text(lang.t.yourTraining).font(DS.headline()).foregroundColor(.white)
-                            Text("\(lang.t.warmUp): \(customWarmup)s").foregroundColor(DS.textSecondary)
-                            Text("\(lang.t.intervals): \(customIntervals)x (\(customWork)s \(lang.t.work) / \(customRest)s \(lang.t.rest))").foregroundColor(DS.textSecondary)
-                            Text("\(lang.t.totalApprox) \(totalMinutes) min").foregroundColor(DS.textSecondary)
+                            Divider().overlay(DS.divider)
+                            detailRow(lang.t.warmUp, fmt(customWarmup))
+                            detailRow(lang.t.intervals, "\(customIntervals)×")
+                            detailRow(lang.t.work, fmt(customWork))
+                            detailRow(lang.t.rest, fmt(customRest))
+                            Divider().overlay(DS.divider)
+                            detailRow(lang.t.totalApprox, fmt(customWarmup + customIntervals * (customWork + customRest)))
                         }
                         .dsCard()
                     } else {
@@ -146,12 +150,19 @@ struct IntervalTimerView: View {
                         }
                         .dsCard()
 
-                        VStack(alignment: .leading, spacing: DS.Space.s) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text(lang.t.yourTraining).font(DS.headline()).foregroundColor(.white)
                             let w = IntervalWorkout.workout(for: selectedDevice, level: selectedLevel)
-                            Text("\(lang.t.warmUp): \(w.warmupSeconds / 60) min").foregroundColor(DS.textSecondary)
-                            Text("\(lang.t.intervals): \(w.intervals)x (\(w.workSeconds)s \(lang.t.work) / \(w.restSeconds)s \(lang.t.rest))").foregroundColor(DS.textSecondary)
-                            Text("\(lang.t.coolDown): \(w.cooldownSeconds / 60) min").foregroundColor(DS.textSecondary)
+                            Text("\(selectedDevice.localizedName(lang.t))  ·  \(selectedLevel.localizedName(lang.t))")
+                                .font(DS.body(15)).foregroundColor(DS.accent)
+                            Divider().overlay(DS.divider)
+                            detailRow(lang.t.warmUp, fmt(w.warmupSeconds))
+                            detailRow(lang.t.intervals, "\(w.intervals)×")
+                            detailRow(lang.t.work, fmt(w.workSeconds))
+                            detailRow(lang.t.rest, fmt(w.restSeconds))
+                            detailRow(lang.t.coolDown, fmt(w.cooldownSeconds))
+                            Divider().overlay(DS.divider)
+                            detailRow(lang.t.totalApprox, fmt(w.warmupSeconds + w.intervals * (w.workSeconds + w.restSeconds) + w.cooldownSeconds))
                         }
                         .dsCard()
                     }
@@ -188,9 +199,19 @@ struct IntervalTimerView: View {
         .padding(.horizontal).padding(.vertical, 12)
     }
 
-    private var totalMinutes: Int {
-        let total = customWarmup + (customIntervals * (customWork + customRest))
-        return max(1, total / 60)
+    private func fmt(_ seconds: Int) -> String {
+        if seconds <= 0 { return "—" }
+        if seconds < 60 { return "\(seconds) sec" }
+        let m = seconds / 60, s = seconds % 60
+        return s == 0 ? "\(m) min" : "\(m) min \(s) sec"
+    }
+
+    private func detailRow(_ label: String, _ value: String) -> some View {
+        HStack {
+            Text(label).font(DS.body(15)).foregroundColor(DS.textSecondary)
+            Spacer()
+            Text(value).font(DS.body(15)).fontWeight(.semibold).foregroundColor(.white)
+        }
     }
 
     var timerView: some View {
