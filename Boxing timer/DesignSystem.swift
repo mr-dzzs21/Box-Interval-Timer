@@ -196,3 +196,59 @@ extension View {
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
     }
 }
+
+// Custom Segmented-Picker (ersetzt iOS .segmented; Text skaliert statt abzuschneiden)
+struct DSSegmentedPicker<T: Hashable>: View {
+    @Binding var selection: T
+    let options: [(value: T, label: String)]
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(options, id: \.value) { option in
+                let isSel = selection == option.value
+                Text(option.label)
+                    .font(.system(size: 14, weight: .bold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .foregroundColor(isSel ? .black : DS.textSecondary)
+                    .background(isSel ? Color.white : Color.clear)
+                    .clipShape(RoundedRectangle(cornerRadius: 9))
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.15)) { selection = option.value }
+                    }
+            }
+        }
+        .padding(4)
+        .background(DS.surfaceHi)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.chip))
+    }
+}
+
+// Wählbare Karte (volle, lesbare Beschriftung – ersetzt enge Segmented-Optionen)
+struct DSSelectableCard: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14, weight: .semibold))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.75)
+                .foregroundColor(isSelected ? .white : DS.textSecondary)
+                .frame(maxWidth: .infinity, minHeight: 60)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 10)
+                .background(isSelected ? DS.accent.opacity(0.20) : DS.surfaceHi)
+                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.chip))
+                .overlay(
+                    RoundedRectangle(cornerRadius: DS.Radius.chip)
+                        .strokeBorder(isSelected ? DS.accent : DS.divider, lineWidth: isSelected ? 2 : 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}

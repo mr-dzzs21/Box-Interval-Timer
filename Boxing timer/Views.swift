@@ -96,11 +96,10 @@ struct IntervalTimerView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, DS.Space.l)
 
-                    Picker("Modus", selection: $useCustom) {
-                        Text(lang.t.preset).tag(false)
-                        Text(lang.t.customSetting).tag(true)
-                    }
-                    .pickerStyle(.segmented)
+                    DSSegmentedPicker(selection: $useCustom, options: [
+                        (false, lang.t.preset),
+                        (true, lang.t.customSetting)
+                    ])
 
                     if useCustom {
                         VStack(spacing: 0) {
@@ -125,23 +124,25 @@ struct IntervalTimerView: View {
                     } else {
                         VStack(alignment: .leading, spacing: DS.Space.s) {
                             Text(lang.t.device).font(DS.headline()).foregroundColor(.white)
-                            Picker(lang.t.device, selection: $selectedDevice) {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                                 ForEach(IntervalDevice.allCases, id: \.self) { d in
-                                    Text(d.localizedName(lang.t)).tag(d)
+                                    DSSelectableCard(title: d.localizedName(lang.t), isSelected: selectedDevice == d) {
+                                        selectedDevice = d
+                                    }
                                 }
                             }
-                            .pickerStyle(.segmented)
                         }
                         .dsCard()
 
                         VStack(alignment: .leading, spacing: DS.Space.s) {
                             Text(lang.t.level).font(DS.headline()).foregroundColor(.white)
-                            Picker(lang.t.level, selection: $selectedLevel) {
+                            HStack(spacing: 8) {
                                 ForEach(IntervalLevel.allCases, id: \.self) { l in
-                                    Text(l.localizedName(lang.t)).tag(l)
+                                    DSSelectableCard(title: l.localizedName(lang.t), isSelected: selectedLevel == l) {
+                                        selectedLevel = l
+                                    }
                                 }
                             }
-                            .pickerStyle(.segmented)
                         }
                         .dsCard()
 
