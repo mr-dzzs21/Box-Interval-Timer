@@ -56,6 +56,14 @@ struct IntervalTimerView: View {
             .alert(lang.t.saved, isPresented: $showSaved) {
                 Button(lang.t.ok, role: .cancel) {}
             }
+            .alert(lang.t.saveError, isPresented: Binding(
+                get: { vm.saveErrorMessage != nil },
+                set: { if !$0 { vm.saveErrorMessage = nil } }
+            )) {
+                Button(lang.t.ok, role: .cancel) { vm.saveErrorMessage = nil }
+            } message: {
+                Text(vm.saveErrorMessage ?? "")
+            }
             .toolbar {
                 if !showConfig {
                     ToolbarItem(placement: .navigationBarLeading) {

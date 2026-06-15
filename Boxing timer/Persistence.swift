@@ -29,14 +29,27 @@ final class PersistenceController {
         
         container.viewContext.automaticallyMergesChangesFromParent = true
 
-        container.loadPersistentStores { _, error in
-            if let error = error as NSError? {
+        container.loadPersistentStores { [container] description, error in
+            guard let error = error as NSError? else { return }
 #if DEBUG
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+            fatalError("Unresolved error \(error), \(error.userInfo)")
 #else
-                print("Core Data store konnte nicht geladen werden: \(error), \(error.userInfo)")
-#endif
+            print("Core Data store konnte nicht geladen werden: \(error), \(error.userInfo)")
+            // Wiederherstellung: beschädigten/inkompatiblen Store entfernen und neu
+            // anlegen, damit die App nutzbar bleibt (alte History geht dabei verloren,
+            // statt die App dauerhaft in einem kaputten Zustand laufen zu lassen).
+            guard let storeURL = description.url, storeURL.path != "/dev/null" else { return }
+            do {
+                try container.persistentStoreCoordinator.destroyPersistentStore(at: storeURL, ofType: NSSQLiteStoreType, options: nil)
+                container.loadPersistentStores { _, retryError in
+                    if let retryError = retryError as NSError? {
+                        print("Core Data Wiederherstellung fehlgeschlagen: \(retryError), \(retryError.userInfo)")
+                    }
+                }
+            } catch {
+                print("Core Data Store-Wiederherstellung nicht möglich: \(error)")
             }
+#endif
         }
     }
     

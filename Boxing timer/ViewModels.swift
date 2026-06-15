@@ -69,6 +69,15 @@ class FightTimerViewModel: ObservableObject {
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
         applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
+        // Bei Warm-up = 0 beginnt sofort Runde 1; das Start-Snapshot läuft ohne
+        // Effekte, daher hier die Eröffnungsglocke + Ansage nachholen.
+        if phase == .round {
+            let soundEnabled = settings?.soundEnabled ?? true
+            let vibrationEnabled = settings?.vibrationEnabled ?? true
+            soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            soundManager.speakRound(lastSnapshot?.currentStep ?? 1, soundEnabled: soundEnabled)
+        }
         startLiveActivity()
     }
 
@@ -168,10 +177,11 @@ class FightTimerViewModel: ObservableObject {
     }
 
     func skip() {
+        guard status != .idle else { return }
         let now = Date()
         let previous = lastSnapshot ?? engine.snapshot(at: now)
         engine.skip(at: now)
-        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: status != .idle, previousSnapshot: previous)
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true, previousSnapshot: previous)
     }
 
     func refreshFromClock() {
@@ -311,9 +321,17 @@ class FightTimerViewModel: ObservableObject {
         guard let previous, previous.segmentIndex == snapshot.segmentIndex else { return }
         guard previous.timeRemaining > 10, snapshot.timeRemaining <= 10 else { return }
 
+        // Diese Warnsegment-Grenze gilt jetzt als behandelt – auch wenn wir gleich
+        // nicht abspielen, damit sie in einem späteren Tick nicht erneut auslöst.
+        warnedSegmentIndex = snapshot.segmentIndex
+
+        // Nur abspielen, wenn die 10-Sekunden-Grenze in Echtzeit überschritten wurde
+        // (~1s pro Tick). Nach einem großen Sprung – App war im Hintergrund oder es
+        // wurde geskippt – käme die Warnung viel zu spät und wird unterdrückt.
+        guard previous.timeRemaining - snapshot.timeRemaining <= 2 else { return }
+
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true
-        warnedSegmentIndex = snapshot.segmentIndex
         soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
         soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
     }
@@ -408,6 +426,15 @@ class IntervalTimerViewModel: ObservableObject {
         UIApplication.shared.isIdleTimerDisabled = true
         startTimer()
         applySnapshot(engine.snapshot(at: now), now: now, allowEffects: false)
+        // Bei Warm-up = 0 beginnt sofort Runde 1; das Start-Snapshot läuft ohne
+        // Effekte, daher hier die Eröffnungsglocke + Ansage nachholen.
+        if phase == .round {
+            let soundEnabled = settings?.soundEnabled ?? true
+            let vibrationEnabled = settings?.vibrationEnabled ?? true
+            soundManager.playSound(type: .roundStart, soundEnabled: soundEnabled)
+            soundManager.playHaptic(type: .roundStart, vibrationEnabled: vibrationEnabled)
+            soundManager.speakRound(lastSnapshot?.currentStep ?? 1, soundEnabled: soundEnabled)
+        }
         startLiveActivity()
     }
 
@@ -454,10 +481,11 @@ class IntervalTimerViewModel: ObservableObject {
     }
 
     func skip() {
+        guard status != .idle else { return }
         let now = Date()
         let previous = lastSnapshot ?? engine.snapshot(at: now)
         engine.skip(at: now)
-        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: status != .idle, previousSnapshot: previous)
+        applySnapshot(engine.snapshot(at: now), now: now, allowEffects: true, previousSnapshot: previous)
     }
 
     func refreshFromClock() {
@@ -650,9 +678,17 @@ class IntervalTimerViewModel: ObservableObject {
         guard let previous, previous.segmentIndex == snapshot.segmentIndex else { return }
         guard previous.timeRemaining > 10, snapshot.timeRemaining <= 10 else { return }
 
+        // Diese Warnsegment-Grenze gilt jetzt als behandelt – auch wenn wir gleich
+        // nicht abspielen, damit sie in einem späteren Tick nicht erneut auslöst.
+        warnedSegmentIndex = snapshot.segmentIndex
+
+        // Nur abspielen, wenn die 10-Sekunden-Grenze in Echtzeit überschritten wurde
+        // (~1s pro Tick). Nach einem großen Sprung – App war im Hintergrund oder es
+        // wurde geskippt – käme die Warnung viel zu spät und wird unterdrückt.
+        guard previous.timeRemaining - snapshot.timeRemaining <= 2 else { return }
+
         let soundEnabled = settings?.soundEnabled ?? true
         let vibrationEnabled = settings?.vibrationEnabled ?? true
-        warnedSegmentIndex = snapshot.segmentIndex
         soundManager.playSound(type: .roundWarning, soundEnabled: soundEnabled)
         soundManager.playHaptic(type: .roundWarning, vibrationEnabled: vibrationEnabled)
     }
@@ -978,6 +1014,14 @@ struct FightTimerView: View {
             }
             .alert(lang.t.saved, isPresented: $showSaved) {
                 Button(lang.t.ok, role: .cancel) {}
+            }
+            .alert(lang.t.saveError, isPresented: Binding(
+                get: { vm.saveErrorMessage != nil },
+                set: { if !$0 { vm.saveErrorMessage = nil } }
+            )) {
+                Button(lang.t.ok, role: .cancel) { vm.saveErrorMessage = nil }
+            } message: {
+                Text(vm.saveErrorMessage ?? "")
             }
         }
     }

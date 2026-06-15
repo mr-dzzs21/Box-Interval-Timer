@@ -151,6 +151,7 @@ struct Translations {
     let back: String
     let saveWorkout: String
     let saved: String
+    let saveError: String
 
     // Kampfsport-Namen (nur die, die sich wirklich ändern)
     let sportBoxen: String
@@ -306,7 +307,7 @@ let todoNotifications: String
             preset: "Preset", customSetting: "Eigene Einstellung", device: "Gerät", level: "Level",
             yourTraining: "Dein Training:", intervals: "Intervalle", coolDown: "Cool-down",
             totalApprox: "Gesamt: ca.", startTraining: "Training starten", work: "Work",
-            back: "Zurück", saveWorkout: "Workout speichern", saved: "Gespeichert!",
+            back: "Zurück", saveWorkout: "Workout speichern", saved: "Gespeichert!", saveError: "Speichern fehlgeschlagen",
             sportBoxen: "Boxen", sportRingen: "Ringen",
             deviceRunning: "🏃 Draußen laufen", deviceTreadmill: "🏋️ Laufband",
             deviceAirBike: "🚴 AirBike", deviceBagWork: "🥊 Sandsack",
@@ -380,7 +381,7 @@ let todoNotifications: String
             preset: "Preset", customSetting: "Custom", device: "Device", level: "Level",
             yourTraining: "Your training:", intervals: "Intervals", coolDown: "Cool-down",
             totalApprox: "Total: approx.", startTraining: "Start Training", work: "Work",
-            back: "Back", saveWorkout: "Save Workout", saved: "Saved!",
+            back: "Back", saveWorkout: "Save Workout", saved: "Saved!", saveError: "Save failed",
             sportBoxen: "Boxing", sportRingen: "Wrestling",
             deviceRunning: "🏃 Outdoor Running", deviceTreadmill: "🏋️ Treadmill",
             deviceAirBike: "🚴 Air Bike", deviceBagWork: "🥊 Bag Work",
@@ -453,7 +454,7 @@ let todoNotifications: String
             preset: "مُعد مسبقاً", customSetting: "مخصص", device: "الجهاز", level: "المستوى",
             yourTraining: ":تدريبك", intervals: "فترات", coolDown: "تبريد",
             totalApprox: "المجموع: تقريباً", startTraining: "ابدأ التدريب", work: "تمرين",
-            back: "رجوع", saveWorkout: "حفظ التمرين", saved: "!تم الحفظ",
+            back: "رجوع", saveWorkout: "حفظ التمرين", saved: "!تم الحفظ", saveError: "فشل الحفظ",
             sportBoxen: "ملاكمة", sportRingen: "مصارعة",
             deviceRunning: "🏃 الجري الخارجي", deviceTreadmill: "🏋️ جهاز الجري",
             deviceAirBike: "🚴 دراجة هوائية", deviceBagWork: "🥊 كيس الملاكمة",
@@ -526,7 +527,7 @@ let todoNotifications: String
             preset: "Predefinido", customSetting: "Personalizado", device: "Equipo", level: "Nivel",
             yourTraining: "Tu entrenamiento:", intervals: "Intervalos", coolDown: "Enfriamiento",
             totalApprox: "Total: aprox.", startTraining: "Iniciar Entrenamiento", work: "Trabajo",
-            back: "Atrás", saveWorkout: "Guardar Entrenamiento", saved: "¡Guardado!",
+            back: "Atrás", saveWorkout: "Guardar Entrenamiento", saved: "¡Guardado!", saveError: "Error al guardar",
             sportBoxen: "Boxeo", sportRingen: "Lucha",
             deviceRunning: "🏃 Correr al aire libre", deviceTreadmill: "🏋️ Cinta de correr",
             deviceAirBike: "🚴 Bicicleta Air", deviceBagWork: "🥊 Saco de boxeo",
@@ -599,7 +600,7 @@ let todoNotifications: String
             preset: "Préréglage", customSetting: "Personnalisé", device: "Appareil", level: "Niveau",
             yourTraining: "Votre entraînement :", intervals: "Intervalles", coolDown: "Récupération",
             totalApprox: "Total : environ", startTraining: "Démarrer l'Entraînement", work: "Travail",
-            back: "Retour", saveWorkout: "Enregistrer l'entraînement", saved: "Enregistré !",
+            back: "Retour", saveWorkout: "Enregistrer l'entraînement", saved: "Enregistré !", saveError: "Échec de l'enregistrement",
             sportBoxen: "Boxe", sportRingen: "Lutte",
             deviceRunning: "🏃 Course en plein air", deviceTreadmill: "🏋️ Tapis de course",
             deviceAirBike: "🚴 Vélo Air", deviceBagWork: "🥊 Sac de frappe",
@@ -672,7 +673,7 @@ let todoNotifications: String
             preset: "Пресет", customSetting: "Свои настройки", device: "Устройство", level: "Уровень",
             yourTraining: "Твоя тренировка:", intervals: "Интервалы", coolDown: "Заминка",
             totalApprox: "Итого: прим.", startTraining: "Начать тренировку", work: "Работа",
-            back: "Назад", saveWorkout: "Сохранить тренировку", saved: "Сохранено!",
+            back: "Назад", saveWorkout: "Сохранить тренировку", saved: "Сохранено!", saveError: "Не удалось сохранить",
             sportBoxen: "Бокс", sportRingen: "Борьба",
             deviceRunning: "🏃 Бег на улице", deviceTreadmill: "🏋️ Беговая дорожка",
             deviceAirBike: "🚴 Велотренажёр", deviceBagWork: "🥊 Груша",
@@ -745,7 +746,7 @@ let todoNotifications: String
             preset: "Predefinição", customSetting: "Personalizado", device: "Equipamento", level: "Nível",
             yourTraining: "Seu treino:", intervals: "Intervalos", coolDown: "Desaceleração",
             totalApprox: "Total: aprox.", startTraining: "Iniciar Treino", work: "Trabalho",
-            back: "Voltar", saveWorkout: "Salvar Treino", saved: "Salvo!",
+            back: "Voltar", saveWorkout: "Salvar Treino", saved: "Salvo!", saveError: "Falha ao salvar",
             sportBoxen: "Boxe", sportRingen: "Luta Livre",
             deviceRunning: "🏃 Corrida ao ar livre", deviceTreadmill: "🏋️ Esteira",
             deviceAirBike: "🚴 Bicicleta Air", deviceBagWork: "🥊 Saco de pancadas",
