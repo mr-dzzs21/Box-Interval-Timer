@@ -23,12 +23,47 @@ final class Boxing_timerUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testTabsDoNotCrash() throws {
         let app = XCUIApplication()
+        // Onboarding + Spenden-Popup überspringen (UserDefaults via Launch-Args)
+        app.launchArguments = ["-onboardingCompleted", "YES", "-donationPromptShown", "YES"]
         app.launch()
+        XCTAssertEqual(app.state, .runningForeground, "App nicht im Vordergrund nach Launch")
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let tabButtons = app.tabBars.buttons
+        XCTAssertGreaterThan(tabButtons.count, 0, "Keine Tab-Bar-Buttons gefunden")
+
+        // Jeden Tab antippen und prüfen, dass die App nicht abstürzt
+        for i in 0..<tabButtons.count {
+            let btn = tabButtons.element(boundBy: i)
+            if btn.exists { btn.tap() }
+            Thread.sleep(forTimeInterval: 1.0)
+            XCTAssertEqual(app.state, .runningForeground, "App ist auf Tab \(i) abgestürzt")
+            let shot = XCTAttachment(screenshot: app.screenshot())
+            shot.name = "tab-\(i)"
+            shot.lifetime = .keepAlways
+            add(shot)
+        }
+
+        // Falls die letzten Tabs unter "More" liegen: dort die Einträge öffnen
+        let more = app.tabBars.buttons.element(boundBy: tabButtons.count - 1)
+        if more.exists { more.tap(); Thread.sleep(forTimeInterval: 0.5) }
+        let cells = app.cells
+        for i in 0..<min(cells.count, 4) {
+            let cell = cells.element(boundBy: i)
+            if cell.exists && cell.isHittable {
+                cell.tap()
+                Thread.sleep(forTimeInterval: 1.0)
+                XCTAssertEqual(app.state, .runningForeground, "App ist in More-Eintrag \(i) abgestürzt")
+                let shot = XCTAttachment(screenshot: app.screenshot())
+                shot.name = "more-\(i)"
+                shot.lifetime = .keepAlways
+                add(shot)
+                if app.navigationBars.buttons.element(boundBy: 0).exists {
+                    app.navigationBars.buttons.element(boundBy: 0).tap()
+                }
+            }
+        }
     }
 
     @MainActor
