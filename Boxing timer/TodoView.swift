@@ -25,17 +25,19 @@ struct TodoView: View {
                         .focused($fieldFocused)
                         .submitLabel(.done)
                         .onSubmit { addTodo() }
+                        .foregroundColor(.white)
+                        .tint(DS.accent)
                         .padding(12)
-                        .background(Color(.systemGray6))
+                        .background(DS.surfaceHi)
                         .cornerRadius(10)
 
                     Button(action: addTodo) {
                         Text(lang.t.todoAdd)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
+                            .fontWeight(.bold)
+                            .foregroundColor(newTitle.trimmingCharacters(in: .whitespaces).isEmpty ? DS.textTertiary : .black)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
-                            .background(newTitle.trimmingCharacters(in: .whitespaces).isEmpty ? Color.gray : Color.blue)
+                            .background(newTitle.trimmingCharacters(in: .whitespaces).isEmpty ? DS.surfaceHi : DS.accent)
                             .cornerRadius(10)
                     }
                     .disabled(newTitle.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -47,14 +49,14 @@ struct TodoView: View {
                     Spacer()
                     VStack(spacing: 16) {
                         Image(systemName: "checkmark.circle")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
+                            .font(.system(size: 56))
+                            .foregroundColor(DS.textTertiary)
                         Text(lang.t.todoEmpty)
-                            .font(.title2)
-                            .foregroundColor(.gray)
+                            .font(DS.display(22))
+                            .foregroundColor(.white)
                         Text(lang.t.todoEmptyDesc)
                             .font(.subheadline)
-                            .foregroundColor(.gray)
+                            .foregroundColor(DS.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding()
@@ -67,6 +69,7 @@ struct TodoView: View {
                                 ForEach(openTodos) { todo in
                                     TodoRow(todo: todo)
                                         .onTapGesture { todoManager.toggle(todo) }
+                                        .listRowBackground(DS.surface)
                                 }
                                 .onDelete { offsets in
                                     let ids = offsets.map { openTodos[$0].id }
@@ -81,6 +84,7 @@ struct TodoView: View {
                                 ForEach(doneTodos) { todo in
                                     TodoRow(todo: todo)
                                         .onTapGesture { todoManager.toggle(todo) }
+                                        .listRowBackground(DS.surface)
                                 }
                                 .onDelete { offsets in
                                     let ids = offsets.map { doneTodos[$0].id }
@@ -89,10 +93,12 @@ struct TodoView: View {
                             }
                         }
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(DS.bg.ignoresSafeArea())
             .navigationTitle(lang.t.todosTitle)
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .onTapGesture { fieldFocused = false }
         }
     }
@@ -111,11 +117,11 @@ struct TodoRow: View {
         HStack(spacing: 14) {
             Image(systemName: todo.isDone ? "checkmark.circle.fill" : "circle")
                 .font(.system(size: 22))
-                .foregroundColor(todo.isDone ? .green : .gray)
+                .foregroundColor(todo.isDone ? DS.accent : DS.textTertiary)
 
             Text(todo.title)
-                .strikethrough(todo.isDone, color: .gray)
-                .foregroundColor(todo.isDone ? .gray : .primary)
+                .strikethrough(todo.isDone, color: DS.textTertiary)
+                .foregroundColor(todo.isDone ? DS.textSecondary : .white)
 
             Spacer()
         }

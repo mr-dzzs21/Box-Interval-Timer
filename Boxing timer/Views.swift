@@ -289,36 +289,42 @@ struct HistoryView: View {
         NavigationStack {
             Group {
                 if workouts.isEmpty {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 16) {
                         Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 60)).foregroundColor(.gray)
+                            .font(.system(size: 56)).foregroundColor(DS.textTertiary)
                         Text(lang.t.noWorkouts)
-                            .font(.title2).foregroundColor(.gray)
+                            .font(DS.display(22)).foregroundColor(.white)
                         Text(lang.t.noWorkoutsDesc)
-                            .font(.subheadline).foregroundColor(.gray)
+                            .font(.subheadline).foregroundColor(DS.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(DS.bg)
                 } else {
                     List {
                         ForEach(workouts, id: \.id) { w in
                             NavigationLink(destination: WorkoutDetailView(workout: w)) {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text(lang.t.localizedPresetName(w.sportName ?? "Unknown")).font(.headline)
-                                        Text(w.mode ?? "").font(.subheadline).foregroundColor(.secondary)
-                                        Text(formatDate(w.date ?? Date())).font(.caption).foregroundColor(.secondary)
+                                        Text(lang.t.localizedPresetName(w.sportName ?? "Unknown")).font(DS.headline(17)).foregroundColor(.white)
+                                        Text(w.mode ?? "").font(.subheadline).foregroundColor(DS.textSecondary)
+                                        Text(formatDate(w.date ?? Date())).font(.caption).foregroundColor(DS.textTertiary)
                                     }
                                     Spacer()
-                                    Text(formatDuration(Int(w.totalDuration))).font(.subheadline).foregroundColor(.secondary)
+                                    Text(formatDuration(Int(w.totalDuration))).font(DS.body(15)).foregroundColor(DS.accent)
                                 }
                             }
+                            .listRowBackground(DS.surface)
+                            .listRowSeparatorTint(DS.divider)
                         }
                         .onDelete { indices in
                             indices.forEach { context.delete(workouts[$0]) }
                             try? context.save()
                         }
                     }
+                    .scrollContentBackground(.hidden)
+                    .background(DS.bg)
                 }
             }
             .navigationTitle(lang.t.historyTitle)
@@ -723,19 +729,20 @@ struct DonationPromptView: View {
     @State private var showDonationSheet = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 22) {
             Spacer()
 
             Text("🥊")
                 .font(.system(size: 70))
 
             Text(lang.t.donationTitle)
-                .font(.title2.bold())
+                .font(DS.display(26))
+                .foregroundColor(.white)
                 .multilineTextAlignment(.center)
 
             Text(lang.t.donationSubtitle)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(DS.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
@@ -746,24 +753,26 @@ struct DonationPromptView: View {
                     Image(systemName: "heart.fill")
                     Text(lang.t.donationSupport)
                 }
-                .font(.headline)
+                .font(.system(size: 17, weight: .bold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.blue)
-                .cornerRadius(14)
+                .padding(.vertical, 16)
+                .background(DS.accent)
+                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.pill))
             }
             .padding(.horizontal)
 
             Button(lang.t.cancel) {
                 dismiss()
             }
-            .foregroundColor(.secondary)
+            .foregroundColor(DS.textSecondary)
             .font(.subheadline)
 
             Spacer()
         }
         .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DS.bg.ignoresSafeArea())
         .sheet(isPresented: $showDonationSheet) {
             DonationView()
                 .onDisappear { dismiss() }
@@ -780,22 +789,22 @@ struct PrivacyPolicyView: View {
             VStack(alignment: .leading, spacing: 20) {
 
                 Text("🥊 Box Interval Timer")
-                    .font(.title.bold())
+                    .font(DS.display(26)).foregroundColor(.white)
                 Text(lang.t.privacyDate)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(DS.textSecondary)
 
                 // Kurzfassung
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: "checkmark.shield.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(DS.phaseRound)
                         .font(.title2)
                     Text(lang.t.privacySummary)
-                        .font(.subheadline)
+                        .font(.subheadline).foregroundColor(.white)
                 }
                 .padding()
-                .background(Color.green.opacity(0.1))
-                .cornerRadius(12)
+                .background(DS.surface)
+                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
 
                 Group {
                     PolicySection(
@@ -831,7 +840,7 @@ struct PrivacyPolicyView: View {
                         Text(lang.t.privacyOpenBrowser)
                     }
                     .font(.subheadline)
-                    .foregroundColor(.blue)
+                    .foregroundColor(DS.accent)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.top, 4)
@@ -844,6 +853,7 @@ struct PrivacyPolicyView: View {
             }
             .padding()
         }
+        .background(DS.bg.ignoresSafeArea())
         .navigationTitle(lang.t.privacyNavTitle)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -858,19 +868,19 @@ struct PolicySection: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .foregroundColor(.orange)
+                    .foregroundColor(DS.accent)
                     .frame(width: 20)
                 Text(title)
-                    .font(.headline)
+                    .font(DS.headline(17)).foregroundColor(.white)
             }
             Text(text)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(DS.textSecondary)
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.gray.opacity(0.08))
-        .cornerRadius(12)
+        .background(DS.surface)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
     }
 }
 
@@ -890,11 +900,12 @@ struct DonationView: View {
                         Text("🥊")
                             .font(.system(size: 70))
                         Text(lang.t.donationTitle)
-                            .font(.title2.bold())
+                            .font(DS.display(24))
+                            .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                         Text(lang.t.donationSubtitle)
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(DS.textSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -936,6 +947,7 @@ struct DonationView: View {
                     Spacer(minLength: 20)
                 }
             }
+            .background(DS.bg.ignoresSafeArea())
             .navigationTitle(lang.t.donationSupport)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -984,20 +996,21 @@ struct DonationButton: View {
                     .font(.system(size: 36))
                 VStack(alignment: .leading, spacing: 4) {
                     Text(product.displayName)
-                        .font(.headline)
-                        .foregroundColor(.primary)
+                        .font(DS.headline(17))
+                        .foregroundColor(.white)
                     Text(product.description)
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(DS.textSecondary)
                 }
                 Spacer()
                 Text(product.displayPrice)
                     .font(.title3.bold())
-                    .foregroundColor(.blue)
+                    .foregroundColor(DS.accent)
             }
             .padding(18)
-            .background(Color.blue.opacity(0.08))
-            .cornerRadius(16)
+            .background(DS.surface)
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
+            .overlay(RoundedRectangle(cornerRadius: DS.Radius.card).strokeBorder(DS.divider, lineWidth: 1))
         }
         .disabled(manager.isPurchasing)
     }
@@ -1219,61 +1232,76 @@ struct StopwatchView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
+            ZStack {
+                DS.bg.ignoresSafeArea()
+                VStack(spacing: 0) {
 
-                // Zeit-Anzeige
-                Text(vm.formatted(vm.elapsed))
-                    .font(.system(size: 72, weight: .thin, design: .monospaced))
-                    .padding(.top, 60)
-                    .padding(.bottom, 40)
+                    // Zeit-Anzeige
+                    Text(vm.formatted(vm.elapsed))
+                        .font(.system(size: 74, weight: .black, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundColor(.white)
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
+                        .padding(.horizontal)
+                        .padding(.top, 60)
+                        .padding(.bottom, 40)
 
-                // Buttons
-                HStack(spacing: 40) {
-                    // Lap / Reset Button
-                    Button {
-                        if vm.isRunning { vm.lap() } else { vm.reset() }
-                    } label: {
-                        Text(vm.isRunning ? lang.t.stopwatchLap : lang.t.stopwatchReset)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-                            .frame(width: 80, height: 80)
-                            .background(Color(.systemGray5))
-                            .clipShape(Circle())
-                    }
-                    .disabled(!vm.isRunning && vm.elapsed == 0)
+                    // Buttons
+                    HStack(spacing: 40) {
+                        // Lap / Reset Button
+                        Button {
+                            if vm.isRunning { vm.lap() } else { vm.reset() }
+                        } label: {
+                            Text(vm.isRunning ? lang.t.stopwatchLap : lang.t.stopwatchReset)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 84, height: 84)
+                                .background(DS.controlFill)
+                                .clipShape(Circle())
+                                .overlay(Circle().strokeBorder(DS.controlStroke, lineWidth: 1.5))
+                        }
+                        .disabled(!vm.isRunning && vm.elapsed == 0)
 
-                    // Start / Stop Button
-                    Button {
-                        vm.startStop()
-                    } label: {
-                        Text(vm.isRunning ? lang.t.stopwatchStop : lang.t.stopwatchStart)
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(width: 80, height: 80)
-                            .background(vm.isRunning ? Color.red : Color.green)
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(.bottom, 40)
-
-                // Runden-Liste
-                if !vm.laps.isEmpty {
-                    Divider()
-                    List {
-                        ForEach(Array(vm.laps.enumerated()), id: \.offset) { index, lap in
-                            HStack {
-                                Text("\(lang.t.stopwatchLap) \(vm.laps.count - index)")
-                                    .foregroundColor(.secondary)
-                                Spacer()
-                                Text(vm.formatted(lap))
-                                    .font(.system(.body, design: .monospaced))
-                            }
+                        // Start / Stop Button
+                        Button {
+                            vm.startStop()
+                        } label: {
+                            Text(vm.isRunning ? lang.t.stopwatchStop : lang.t.stopwatchStart)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                                .frame(width: 84, height: 84)
+                                .background(vm.isRunning ? DS.phaseRest : DS.phaseRound)
+                                .clipShape(Circle())
+                                .shadow(color: .black.opacity(0.25), radius: 6, y: 3)
                         }
                     }
-                    .listStyle(.plain)
-                }
+                    .padding(.bottom, 32)
 
-                Spacer()
+                    // Runden-Liste
+                    if !vm.laps.isEmpty {
+                        ScrollView {
+                            VStack(spacing: 0) {
+                                ForEach(Array(vm.laps.enumerated()), id: \.offset) { index, lap in
+                                    HStack {
+                                        Text("\(lang.t.stopwatchLap) \(vm.laps.count - index)")
+                                            .font(DS.body(15))
+                                            .foregroundColor(DS.textSecondary)
+                                        Spacer()
+                                        Text(vm.formatted(lap))
+                                            .font(.system(.body, design: .monospaced))
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding(.vertical, 12)
+                                    Divider().overlay(DS.divider)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+
+                    Spacer()
+                }
             }
             .navigationTitle(lang.t.stopwatchTitle)
             .navigationBarTitleDisplayMode(.inline)
