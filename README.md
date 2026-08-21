@@ -9,16 +9,19 @@ A professional combat-sports interval timer for iPhone and iPad — **live on th
 
 > A cross-platform **Android/Flutter port** of this app lives in a separate repo: **[boxing-timer-flutter](https://github.com/mr-dzzs21/boxing-timer-flutter)** — same design and feature set, rebuilt in Dart/Flutter.
 
-<!--
 ## Screenshots
-TODO: drop App Store screenshots into docs/screenshots/ and uncomment this block:
+
 <p align="center">
-  <img src="docs/screenshots/fight-timer.png" width="24%" />
-  <img src="docs/screenshots/intervals.png"  width="24%" />
-  <img src="docs/screenshots/stats.png"       width="24%" />
-  <img src="docs/screenshots/history.png"     width="24%" />
+  <img src="docs/screenshots/01-fight-timer.png" width="30%" />
+  <img src="docs/screenshots/02-fight-rest.png"  width="30%" />
+  <img src="docs/screenshots/03-intervals.png"   width="30%" />
 </p>
--->
+<p align="center">
+  <img src="docs/screenshots/04-stats.png"     width="30%" />
+  <img src="docs/screenshots/06-history.png"   width="30%" />
+  <img src="docs/screenshots/05-stopwatch.png" width="30%" />
+</p>
+<p align="center"><sub>Fight timer (round / rest — the background follows the phase) · interval setup · statistics · history · stopwatch</sub></p>
 
 ## Features
 
