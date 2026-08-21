@@ -846,22 +846,23 @@ class StatsViewModel: ObservableObject {
     private func calculateStreak(_ workouts: [WorkoutHistoryEntity]) -> Int {
         guard !workouts.isEmpty else { return 0 }
         let calendar = Calendar.current
-        let sorted = workouts.sorted { ($0.date ?? Date()) > ($1.date ?? Date()) }
+        // Distinct training days.
+        let days = Set(workouts.compactMap { $0.date.map { calendar.startOfDay(for: $0) } })
+        let today = calendar.startOfDay(for: Date())
+        // Count consecutive training days ending today. Today counts toward the
+        // streak; if there is no workout today yet but there was one yesterday,
+        // the streak is still alive, so start counting from yesterday.
+        var cursor = today
+        if !days.contains(cursor),
+           let yesterday = calendar.date(byAdding: .day, value: -1, to: today),
+           days.contains(yesterday) {
+            cursor = yesterday
+        }
         var streak = 0
-        var currentDate = calendar.startOfDay(for: Date())
-        
-        for w in sorted {
-            guard let wDate = w.date else { continue }
-            let wDay = calendar.startOfDay(for: wDate)
-            let diff = calendar.dateComponents([.day], from: wDay, to: currentDate).day ?? 0
-            if diff == 0 || diff == 1 {
-                if diff == 1 {
-                    streak += 1
-                    currentDate = wDay
-                }
-            } else {
-                break
-            }
+        while days.contains(cursor) {
+            streak += 1
+            guard let prev = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = prev
         }
         return streak
     }
